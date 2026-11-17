@@ -1,14 +1,14 @@
 # SC2006 / CE2006 / CZ2006 — Software Engineering
 ## Chapter-wise Learning Outcomes & Tutorial Learning Points
 
-> **Scope.** Built from the lecture decks in this folder (`1 – Introduction` … `9 – Agile`, `Lecture 12 System Design`, `Writing SRS`) and `Tutorial Questions.pdf`, with gaps filled from the prescribed textbooks.
+> **Scope.** Built from the lecture decks in this folder (`1 – Introduction` … `9 – Agile`, `Lecture 12 System Design` … `Lecture 21 Software Maintenance`, `Writing SRS`) and `Tutorial Questions.pdf`, with gaps filled from the prescribed textbooks. Slide citations are written as **(L14 p7)** = Lecture 14, page 7.
 >
 > **Textbook shorthand used throughout**
 > - **[S]** — Ian Sommerville, *Software Engineering*, 10th ed., Pearson 2017
 > - **[BD]** — Bruegge & Dutoit, *Object-Oriented Software Engineering: Using UML, Patterns and Java*, 3rd ed., Pearson 2010
 > - **[F]** — Martin Fowler, *UML Distilled*, 3rd ed., Pearson 2004
 >
-> **Coverage note.** Lecture slides exist for Chapters 1–10 and 11 below. Tutorials 6(b)–9 examine **design patterns** and **software testing**, for which no slide deck is present in this folder. Chapters 12–14 are therefore reconstructed from [BD] Ch. 8 and [S] Ch. 8 so the tutorial answers are still self-contained. These are flagged as *(no slides in folder)*.
+> **Coverage note.** Every chapter now has lecture slides behind it. Chapters 12–16 were rewritten on 17 Nov 2026 from Lectures 13–21; where a textbook adds something the slides don't cover, it is marked as a *textbook extra*. **Where the slides and a textbook disagree, the slides win** — they are what the exam is set from.
 >
 > **Case-study note.** Tutorials 2, 3, 6, 7 and 8 all build on the **Grain Elevator System (GES)** problem statement, which is distributed separately on NTULearn and is not in this folder. The learning points below give the *method* and the expected *shape* of the answer rather than inventing GES specifics.
 
@@ -29,9 +29,11 @@
 | 9 | Agile Development & XP | `9 - Agile ... .pdf` (p.1–28) | Tut 4 Q5 |
 | 10 | Scrum | `9 - Agile ... .pdf` (p.29–65) | Tut 5 |
 | 11 | System Design & Software Architecture | `Lecture 12 System Design.pdf` | Tut 6 Q1 |
-| 12 | Design Patterns *(no slides)* | — | Tut 6 Q2, Tut 7 |
-| 13 | Black-box Testing *(no slides)* | — | Tut 8 |
-| 14 | White-box / Control-flow Testing *(no slides)* | — | Tut 9 |
+| 12 | Object Design & Design Patterns | `Lecture 13 Object Design.pdf`, `Lecture 14 Design Patterns.pdf` | Tut 6 Q2, Tut 7 |
+| 13 | MVC — Composing Design Patterns | `Lecture 15 MVC Design Patterns.pdf` | — |
+| 14 | Testing I — Fundamentals, Equivalence Class & Boundary Value Testing | `Lecture 16`, `Lecture 17`, `Lecture 18` | Tut 8 |
+| 15 | Testing II — Control Flow (White-box) Testing | `Lecture 19 -20 Control Flow Testing Lecture.pdf`, `Lecture 21` p.1–12 | Tut 9 |
+| 16 | Software Maintenance | `Lecture 21 Software Maintenance.pdf` p.13–22 | — |
 
 ---
 
@@ -1009,7 +1011,7 @@ Based on **software reuse**: systems are integrated from existing components or 
 | **Changeable / malleable** | Because it *can* be changed, it *will* be asked to change. Forces **change management, configuration management**, and process models that absorb change (incremental, agile). |
 | **Conforming** | Must fit existing hardware, standards, regulations and human processes that it cannot alter. Forces **interface requirements** and constraint analysis. |
 | **Does not wear out, but deteriorates** | No physical degradation, but the **structure degrades** under repeated change. Forces **refactoring** and attention to design quality. |
-| **Discrete, not continuous** | A one-bit change can flip behaviour entirely; there is no "small input ⇒ small output" guarantee. Means **testing can show the presence of defects but not their absence**, and drives systematic test design (equivalence classes, boundary values — Ch. 13). |
+| **Discrete, not continuous** | A one-bit change can flip behaviour entirely; there is no "small input ⇒ small output" guarantee. Means **testing can show the presence of defects but not their absence**, and drives systematic test design (equivalence classes, boundary values — Ch. 14). |
 | **Developed, not manufactured** | Cost is in design, replication is free. Means **quality must be built into the development process**, not inspected into the product line. |
 | **Largely custom-built** | Limited reuse historically; each system solves a somewhat novel problem. Drives the push toward **reuse-oriented / COTS-based** development. |
 | **Logical, not physical, product** | No raw-material or supply-chain constraints — the binding constraint is **people**, which makes the process a *people* problem as much as a technical one (the agile "people not process" principle). |
@@ -1693,7 +1695,7 @@ Key insight: design is **generate-and-test with multiple candidate solutions**, 
    - **Reusability** — the same control layer serves multiple boundary classes.
    - **Separation of concerns, low coupling, high cohesion** — named design principles from the deck.
 
-4. **Mention the second, complementary style.** A well-rounded answer notes that within the Presentation layer, **MVC** (an instance of the **Independent Components / Implicit Invocation** family) applies: the View observes the Model and is notified of changes. Naming MVC here sets up **Tutorial #7 Q1**, where the Observer pattern is the required answer — MVC's model–view notification *is* Observer.
+4. **Mention the second, complementary style.** A well-rounded answer notes that within the Presentation layer, **MVC** (an instance of the **Independent Components / Implicit Invocation** family) applies: the View observes the Model and is notified of changes. Naming MVC here sets up **Tutorial #7 Q1**, where the Observer pattern is the required answer — MVC's model–view notification *is* Observer (full treatment in Ch. 13).
 
 5. **Consider a third style if the GES description warrants it.** If GES continuously ingests sensor readings (silo temperature/humidity), an **event-based / implicit invocation** style for the monitoring sub-system is defensible, with the stated trade-off: **modifiability, concurrency, scalability and easy integration** versus **"was the message received?"** and **correctness is hard to achieve**.
 
@@ -1703,121 +1705,279 @@ Key insight: design is **generate-and-test with multiple candidate solutions**, 
 
 ---
 
-# Chapter 12 — Design Patterns *(no lecture slides in this folder)*
+# Chapter 12 — Object Design & Design Patterns
 
-**Reading:** [BD] Ch. 8 *Object Design: Reusing Pattern Solutions* · [S] §7.2 Design patterns · [F] Ch. 3, 5
-
-> **Why this chapter is here.** Tutorial #6 Q2 and all of Tutorial #7 examine design patterns, but no pattern deck is present in this folder. The Lecture 12 deck names *Design Patterns* as one of the five design inputs and lists the principles (**Open-Closed, Modularity, Abstraction, Reusability, Single Responsibility, Least Knowledge, DRY**) that patterns exist to satisfy. The content below is reconstructed from [BD] Ch. 8, which is the course's prescribed source.
+**Lecture:** `Lecture 13 Object Design.pdf` (Strategy, Observer) · `Lecture 14 Design Patterns.pdf` (Factory, Façade)
+**Reading:** [BD] Ch. 8 *Object Design: Reusing Pattern Solutions*, Ch. 9 *Specifying Interfaces* · [S] §7.2 Design patterns
 
 ## Learning Outcomes
 
-**1. Define a design pattern.** A **template solution** to a recurring design problem — a named, documented pairing of a **problem context** with a **solution structure** and its **consequences**. A pattern is not code and not a library; it is a reusable *design*.
+**1. Place object design in the SDLC (L13 p2–4).** Requirements say **why** and **what** (functional and non-functional requirements). **Design principles, design patterns and constraints** decide **how**. Along the chain:
 
-**2. Know the four elements of a pattern description:** **Name** · **Problem** (the design issue and its context) · **Solution** (the participating classes, their responsibilities and collaborations) · **Consequences** (the trade-offs).
+```
+Requirements elicitation → Requirements analysis   → System design           → Object design      → Implementation → Testing
+(SRS)                      (Analysis model)          (Software architecture)   (Design model)       (Source code)    (Test cases)
+```
 
-**3. Know the three categories.**
+System design (Ch. 11) decides the **subsystems** and how they connect. The lecture's example is the WWW client–server architecture: the client has Presentation, UI, Access, Protocol, Stream and Cache Managers, and the server has an HTTP Server, Path Resolver, Access List and Stream Manager. **Object design** then fills each subsystem with detailed classes, interfaces and collaborations.
 
-| Category | Purpose | Examples in this course |
+**2. Know the four object-design activities (L13 p5–6).**
+
+| Activity | Purpose | Sub-activities (L13 p6) |
 |---|---|---|
-| **Creational** | Abstract the instantiation process | **Abstract Factory**, **Factory Method**, Builder, Singleton |
-| **Structural** | Compose classes/objects into larger structures | **Adapter**, **Bridge**, Composite, Facade, Proxy |
-| **Behavioral** | Assign responsibility and manage communication | **Strategy**, **Observer**, Command, State, Template Method |
+| **Interface specification** | Pin down operations, arguments, type signatures and exceptions | Identify missing attributes & operations · specify visibility · specify types & signatures · specify constraints · specify exceptions |
+| **Reuse** | Use existing libraries and **design patterns** | Identify components · adjust components · identify patterns · adjust patterns |
+| **Restructuring** | Reshape the model to meet design goals (maintainability, flexibility …) | Revisit inheritance · collapse classes · realise associations |
+| **Optimization** | Meet speed or memory goals | Optimise access paths · cache complex computations · delay complex computations |
 
-**4. Know the design principles patterns serve.**
-- **Open-Closed Principle** — software entities should be **open for extension, closed for modification**. This is *the* principle behind Strategy, Observer and Abstract Factory, and the reason all three appear in the tutorials.
-- **Program to an interface, not an implementation.**
-- **Favour composition over inheritance.**
-- **Encapsulate what varies.** — The single most useful heuristic for choosing a pattern: find the thing that changes, and put it behind an interface.
-- **Low coupling / high cohesion** (named in Lecture 12).
+The activity diagram runs: *select subsystem → (Specification ∥ Reuse) → check use cases → next subsystem …* then *(Restructuring ∥ Optimization) → check use cases again*. **Every round ends by checking the design against the use cases.**
 
-### The four patterns examined by the tutorials
+**3. Know "the road to good design" (L13 p7, p47).** This is the three-tier picture the lecture opens and closes with:
 
-#### Strategy (Behavioral)
-**Problem.** A family of algorithms or policies exists; the client must be able to use any of them, and new ones must be addable without changing the client.
+| Good design **is** … | … achieved by **design principles** … | … realised with **design patterns** |
+|---|---|---|
+| Maintainability · Extensibility · Scalability · Testability · Reusability | Program to an interface, not an implementation · High cohesion · Low coupling · Open-Closed · Separation of concerns | Singleton · Abstract Factory · DAO · Strategy · Decorator · … |
 
-**Structure.**
+The full list of principles (L14 p16), worth memorising word for word:
+1. **Identify the aspects of your application that vary and separate them from what stays the same** (encapsulate what varies). This is the single most useful heuristic for choosing a pattern.
+2. **Program to an interface, not an implementation.**
+3. **Favour composition over inheritance.**
+4. **Strive for loosely coupled designs between objects that interact.**
+5. **Classes should be open for extension, but closed for modification** (Open-Closed).
+6. **Principle of least knowledge: talk only to your immediate friends** (the Law of Demeter; Façade enforces it).
+
+**4. Define a design pattern (L13 p8).** *"A proven solution to a problem in a context."* It abstracts a recurring design structure: a template of classes and/or objects with their **dependencies, structures, interactions or conventions**. A pattern is a reusable *design*, not code and not a library. The catalogue comes from the "Gang of Four" (GoF) book.
+
+**5. Know the four elements of a pattern (L13 p9).**
+
+| Element | Says |
+|---|---|
+| **Name** | Describes the pattern and adds to the team's shared vocabulary, so people can communicate with it. It isn't just a label. |
+| **Problem** | When to apply it: *what is the pattern trying to solve?* |
+| **Solution** | The elements, relationships, responsibilities and collaborations that make up the design |
+| **Consequences** | The results of applying it: **benefits and costs**, which are subjective and depend on the concrete scenario |
+
+**6. Know the 23 GoF patterns and their three categories (L13 p10, L14 p3).** **Bold** = taught in detail in this course; *italic* = appears in MVC (Ch. 13).
+
+| Category (count) | Purpose | Patterns |
+|---|---|---|
+| **Creational** (5) | Abstract the instantiation process | *Abstract Factory* · Builder · Factory Method · Prototype · Singleton |
+| **Structural** (7) | Compose classes/objects into larger structures | Adapter · Bridge · *Composite* · *Decorator* · **Façade** · Flyweight · Proxy |
+| **Behavioral** (11) | Assign responsibilities and manage communication | Chain of Responsibility · *Command* · Interpreter · Iterator · Mediator · Memento · **Observer** · State · **Strategy** · Template Method · Visitor |
+
+The lecture's **Factory** is the simple *Static Factory*: one class with a creation method. GoF lists it under its relatives **Factory Method** and **Abstract Factory**.
+
+---
+
+### Strategy (Behavioral) — L13 p11–12
+
+**Design problem.** *A set of algorithms or objects should be interchangeable.*
+
 ```
-┌──────────────┐ strategy ┌─────────────────────────┐
-│   Context    │─────────▷│   «interface» Strategy  │
+┌──────────────┐   uses   ┌─────────────────────────┐
+│   Context    │─────────▷│ «interface» Strategy    │
 │              │          ├─────────────────────────┤
-│ setStrategy()│          │ + algorithmOperation()  │
-│ request()    │          └─────────────────────────┘
-└──────────────┘                     △ △ △
-                                     ╎ ╎ ╎  (realization)
-                  ┌──────────────────┘ ╎ └──────────────────┐
-         ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
-         │ ConcreteStrategyA│ │ ConcreteStrategyB│ │ ConcreteStrategyC│
-         └──────────────────┘ └──────────────────┘ └──────────────────┘
+│              │          │ + doSomething()         │
+└──────────────┘          └─────────────────────────┘
+                                   △         △
+                                   ╎         ╎   implements / realizes
+                      ┌────────────────┐ ┌────────────────┐
+                      │ConcreteStrategyA│ │ConcreteStrategyB│
+                      └────────────────┘ └────────────────┘
 ```
 
-**Roles.** *Context* holds a reference to a Strategy and delegates to it; *Strategy* declares the common interface; *ConcreteStrategy* implements one algorithm; the *Client* chooses and injects the concrete strategy.
+**Roles.** The *Context* holds a reference to a Strategy and delegates to it. *Strategy* declares the common interface. Each *ConcreteStrategy* implements one algorithm. The *Client* chooses the concrete strategy and injects it.
 
-**Consequences.** + New algorithms are added without modifying the Context (Open-Closed). + Eliminates conditional branching over algorithm type. − The client must know which strategies exist in order to choose one — **this is the hole that the Factory pattern fills** (Tutorial #7 Q2).
+| Pros (L13 p12) | Cons (L13 p12) |
+|---|---|
+| Provides encapsulation | Leads to complex, hard-to-understand code **if overused** |
+| Hides implementation | |
+| Allows **behaviour change at run time** | |
 
-#### Observer (Behavioral)
-**Problem.** A one-to-many dependency: when one object changes state, an unknown and varying number of dependents must be notified, without the subject being coupled to their concrete classes.
+*Textbook extra:* the client must still know which concrete strategies exist in order to create one. **That hole is what the Factory pattern fills** (L14 p8; Tutorial #7 Q2).
 
-**Structure.**
+---
+
+### Observer (Behavioral) — L13 p13–46
+
+**When to use.** *When you need many objects (**observers**) to receive an update when another object (the **subject**) changes.* Also known as **Publisher–Subscriber** or **Producer–Consumer**.
+
+**Intent (L13 p24).** *Define a one-to-many dependency between objects so that when one object changes state, all of its dependents are notified and updated automatically.* In short: **easy subscription and automatic notification.**
+
+**Why: the lecture's three stories.** The lecture tells the same story three times: a **baby** and its caregivers, an **NTULearn course** and its students, the **stock market** and its investors. Each time it gives two viewpoints:
+
+| Subject says … | Observer says … |
+|---|---|
+| "I don't know or care **who** is watching me or **how many** are" | "I want to **subscribe and unsubscribe freely**" |
+| "I want to tell whoever is watching **when I change**" | "I want to know about the change as soon as it happens, but **I don't know when** it will happen" |
+| "**It's up to them** what to do about it" | "I **can't keep checking** (polling); I have other important work to do" |
+
+The lecture keeps asking: **what kind of coupling is preferred, tight or loose, and why?** Answer: ***Loose coupling is a benefit for both sides!*** The subject can change without knowing its observers, and observers can come and go without the subject changing.
+
+**The two mechanisms (L13 p25–28).**
+- **Subscription:** observers call `register(o)` / `unregister(o)` on the subject, and the subject adds or removes them from its list.
+- **Notification:** when the subject changes, `notify()` runs `for each o in observers: o.update()`.
+
+**Template, pull version (L13 p33).** The MVC deck (L15) calls the same operations `attach` / `detach`.
+
 ```
-┌────────────────────────────┐              ┌──────────────────────┐
-│         Subject            │ observers *  │ «interface» Observer │
-├────────────────────────────┤─────────────▷├──────────────────────┤
-│ + attach(Observer)         │              │ + update()           │
-│ + detach(Observer)         │              └──────────────────────┘
-│ + notify()                 │                        △
-└────────────────────────────┘                        ╎
-             △                                        ╎
-             ╎                              ┌──────────────────────┐
-┌────────────────────────────┐    subject   │  ConcreteObserver    │
-│      ConcreteSubject       │◁─────────────│ + update()           │
-│ - state                    │              │ - observerState      │
-│ + getState() / setState()  │              └──────────────────────┘
-└────────────────────────────┘
-```
-
-**Roles.** *Subject* keeps the observer list and provides `attach`/`detach`/`notify`; *Observer* declares `update()`; *ConcreteSubject* holds the state and calls `notify()` when it changes; *ConcreteObserver* implements `update()` and reacts.
-
-**Push vs. pull.** *Push* — the subject passes the changed data in `update(data)`. *Pull* — the subject passes only itself, and each observer calls `getState()` to fetch what it needs. Pull suits observers with **differing interests**.
-
-**Consequences.** + Subject and observers are loosely coupled; observers can be added/removed **at run time**. + Supports broadcast. − Unexpected cascading updates; the subject cannot easily tell which observers care about *which* change (addressed by registering interest per topic).
-
-> Observer is the notification mechanism inside **MVC** — the View observes the Model.
-
-#### Abstract Factory (Creational)
-**Problem.** Provide an interface for creating **families of related or dependent objects** without specifying their concrete classes. The client should be insulated from *which* family is in use.
-
-**Structure.**
-```
-                       ┌─────────────────────────────┐
-     client ──────────▷│ «interface» AbstractFactory │
-                       ├─────────────────────────────┤
-                       │ + createProductA()          │
-                       │ + createProductB()          │
-                       └─────────────────────────────┘
-                              △             △
-                              ╎             ╎
-              ┌───────────────────┐  ┌───────────────────┐
-              │ ConcreteFactory1  │  │ ConcreteFactory2  │
-              └───────────────────┘  └───────────────────┘
-                     │ creates              │ creates
-                     ▼                      ▼
-              ProductA1, ProductB1   ProductA2, ProductB2
-                     ╎                      ╎
-                     └──────▷ «interface» AbstractProductA / B ◁──────┘
+┌────────────────────────────┐ 1   observers   * ┌──────────────────────────┐
+│         Subject            │──────────────────▷│        Observer          │
+├────────────────────────────┤                   ├──────────────────────────┤
+│ + register(Observer)       │                   │ + update()               │
+│ + unregister(Observer)     │                   └──────────────────────────┘
+│ + notify()                 │  for each o in observers: o.update()   △
+│ + getData() : Details      │                                        │
+└────────────────────────────┘                                        │
+             △                                         ┌──────────────────────────┐
+             │                       subject           │    ConcreteObserver      │
+┌────────────────────────────┐◁───────────────────────│ + update()               │
+│      ConcreteSubject       │                        │   super.update();        │
+│ - data                     │                        │   subject.getData();     │
+│ + getData() : Details      │                        │   observerSpecificUpdate()│
+└────────────────────────────┘                        └──────────────────────────┘
 ```
 
-**Consequences.** + Isolates concrete classes; the client depends only on interfaces. + Makes exchanging whole product families easy and enforces consistency among products. − Supporting a *new kind of product* requires changing the AbstractFactory interface and every concrete factory.
+**How the lecture builds it (L13 p26–33).** Start concrete: `SE2006NTU` ↔ `YourAccount`. Notice that `SE3003NTU` ↔ `HisAccount` repeats the same structure. **Abstract the commonalities into superclasses** (`Course` ↔ `CourseTaker`) and you have arrived at the template. The exam can hand you a new scenario and ask you to map the roles:
 
-**Factory Method** is the simpler single-product sibling: a method that defers instantiation of one product to subclasses.
+| Scenario | Subject | ConcreteSubject | Observer | ConcreteObserver | Subscribe / unsubscribe | `update()` |
+|---|---|---|---|---|---|---|
+| NTULearn (p30) | `Course` | `SE2006NTU` | `CourseTaker` | `YourAccount` | `register` / `unregister` | `newanncment()` |
+| Baby (p31) | `Baby` | `Infant` | `Caregiver` | `Daddy` | `lookafter` / `donotLookafter` | `babycry()` |
+| Stock market (p32) | `StockMarket` | `SGX` | `Investor` | `VeteranInvestor` | `invest` / `stopInvest` | `marketchange()` |
+| Java Swing (p43–45) | `AbstractButton` | `JButton`, `JMenuItem` | `ActionListener` | `MyActionListener` | `addActionListener` / `removeActionListener` | `actionPerformed(ActionEvent)` |
+| Excel (L15) | `WSSubject` | `SheetManager` | `WSObserver` | `LineChart`, `BarChart` | `attach` / `detach` | `update()` |
 
-#### Bridge / Adapter (Structural) — useful supporting patterns
-- **Bridge** — decouple an abstraction from its implementation so that the two can vary independently. Structurally similar to Strategy, but the *intent* differs: Strategy varies **behaviour/policy**; Bridge varies **platform/implementation**. Either is defensible for the Tutorial #6 Q2 network-protocol problem, provided you justify the intent.
-- **Adapter** — convert the interface of an existing class into the interface the client expects. Relevant when the concrete protocol or notification libraries are third-party and have incompatible APIs.
+**Update protocols: pull, push, or both (L13 p28, p34–37).**
 
-**5. Know how to choose a pattern** — the method the tutorials actually test:
-1. **Find what varies** in the problem statement. Look for lists ("LAN, WiFi, Bluetooth, 3G, 4G"), words like *variety*, *vary greatly*, *change over time*, and requirements for *future extension with minimal impact*.
-2. **Classify the variation:** varying **algorithm/policy** → Strategy · varying **set of interested parties** → Observer · varying **object families to create** → Abstract Factory · varying **number of parts in a whole** → Composite · varying **state-dependent behaviour** → State.
-3. **Check it against the Open-Closed Principle** — can you add a new variant without modifying existing classes? If not, the pattern is wrongly applied.
+| Protocol | How it works | Communication |
+|---|---|---|
+| **Pull** | The subject sends a **simple notification** via `update()`; the observer **calls back** `subject.getData()` for details, if it's interested | **Two-way** |
+| **Push** | The subject sends **detailed information** in `update(details)`, whether the observer wants it or not; no call-back is needed | **One-way** |
+| **Push + Pull** | The subject pushes **some** details in `update(someDetail)`; the observer calls `getMoreData()` only **if interested** | Balanced |
+
+*"Which one is better?"* It depends. Pull suits observers with **differing interests** and keeps notifications small. Push saves the round-trip when every observer needs the same data. Push + Pull is the usual compromise.
+
+**Interest subscription + selective notification (L13 p38–40).** A plain Observer broadcasts to *everyone*. To notify only interested observers:
+- `register(Observer, Interest)` / `unregister(Observer, Interest)` — **interest subscription** (NTULearn: state your tutorial group when you register for the course)
+- `notify(Interest)` → `for each o in observers of the given interest: o.update(interest)` — **selective notification**
+- the observer then pulls with `subject.getData(interest)`
+
+**Event handling *is* Observer (L13 p41–45).** The **event source** is the subject and the **event handlers** are the observers, and the design problems map one-to-one. Java Swing uses all three refinements at once:
+- **Interest subscription:** `addActionListener` vs `addItemListener` register different interests
+- **Selective notification:** `fireActionPerformed` vs `fireItemStateChanged`
+- **Push + pull:** the `ActionEvent` carries some details; the listener pulls more with `e.getSource().getText()`
+
+| Pros (L13 p46) | Cons (L13 p46) |
+|---|---|
+| Abstracts the coupling between Subject and Observer | **Slower performance** |
+| Supports **broadcast** communication | Can add **unnecessary complexity** if not used carefully |
+| Subjects and observers are **reusable independently** of each other | |
+
+---
+
+### Factory (Creational) — L14 p4–14
+
+**Starting problem (L14 p4).** When the system starts, objects must be **created and wired together** according to the class diagram. Without a factory, every client `new`s concrete classes itself.
+
+**When to use (L14 p5).**
+- You have a set of classes but **don't know which one you'll need until run time**.
+- You need to create one of several classes that share a common superclass **without exposing the creation logic** to the client.
+- You want to **localise the instantiation logic** in one place.
+
+**Solution.** *Define an interface for creating different objects without knowing beforehand what sort of object is needed or how it is created.* (The slide says "lets subclasses decide which class to instantiate", which is GoF's Factory Method wording.)
+
+**The design problems it solves (L14 p6).** It **decouples class selection and object creation from the client**. Subclasses can be replaced or added. Selection and creation logic can be complex. The client doesn't know the class ahead of time, and it can be chosen at run time.
+
+**Template: Static Factory (L14 p7).**
+```
+┌──────────┐      uses       ┌──────────────────────────────────────┐
+│ Context  │┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄▷│            StaticFactory              │
+└──────────┘                 ├──────────────────────────────────────┤
+                             │ + createProduct() : AbstractProduct  │  (static)
+                             └──────────────────────────────────────┘
+                                          ┆ «create»
+                                          ▽
+                              «interface» AbstractProduct
+                               △           △           △
+                               ╎           ╎           ╎
+                     ConcreteProductA ConcreteProductB ConcreteProductC
+```
+*Context uses StaticFactory to obtain an object that implements the AbstractProduct interface.*
+
+**Strategy + Factory: the EMS data-access example (L14 p8).**
+```
+ResourceManager ──datastore──▷ «interface» DataStoreInterface ◁┄┄ FlatFileImpl | MySQLImpl | DB2Impl
+ (Context)                      retrieveMap() createIncident()        (ConcreteStrategy / ConcreteProduct)
+      │                         dispatchResource()
+      └──uses──▷ DataStoreFactory  + getDatastore() : DataStoreInterface   ──«create»──▷ the impls
+```
+**This is the model answer shape for Tutorial #7 Q2.**
+
+**Benefits (L14 p9).**
+- Encapsulates object creation
+- Removes duplicate creation code from clients
+- Centralises class selection and object creation
+- Makes it easy to extend, replace or add subclasses (swap `MySQLImpl1` for `MySQLImpl2`; add `OracleImpl`)
+- Makes it easy to change the creation logic, e.g. to hand out a **Singleton** or use **lazy initialisation**
+
+**Strategy + Factory + Dynamic Loading (L14 p10–14).** The factory reads the class name at run time (config or registry) and loads it reflectively. This lets you:
+- create any subclass **without naming the class in code**
+- use new classes with **no change to a single line of existing code**
+- build modern frameworks that load application-specific classes on this foundation
+
+| Framework | Context | Strategy interface | Factory |
+|---|---|---|---|
+| Eclipse IDE: add `SE2006View` *without modifying Eclipse* | Workbench | `ViewPart` (`createPartControl()`) | `RegistryStrategyOSGI` |
+| Java Swing Look & Feel | `JavaSwingApplication` | `LookAndFeel` (Motif, Metal, yours …) | `UIManager` |
+| JDBC drivers | Application | `java.sql.Connection` (MySQL, PostgreSQL, yours …) | `java.sql.DriverManager` |
+
+*Textbook extra: **Abstract Factory**.* It creates **families of related objects** (e.g. a protocol and its matching config) through one interface with several `createX()` methods, with one concrete factory per family. Its weakness is that adding a *new kind of product* changes every factory. MVC uses it to create a view's controller or look & feel (Ch. 13).
+
+---
+
+### Façade (Structural) — L14 p15–20
+
+**Intent.** *Provide a unified interface to a set of interfaces in a subsystem. Façade defines a higher-level interface that makes the subsystem easier to use.*
+
+**Example (L14 p17–19).** Without a façade, the client has to start a computer by itself: create the `HardDrive`, `CPU` and `Memory` objects, then call `cpu.freeze()`, `memory.load(…, hardDrive.read(…))`, `cpu.jump(…)` and `cpu.execute()` in the right order. With a façade, `Computer.startComputer()` does all of that, and the client (`FacadeExample.main()`) makes **one call**.
+
+```
+FacadeExample ──startComputer()──▷ Computer «Façade»
+                                    + startComputer()
+                                    ◆        ◆        ◆   (composition)
+                                 HardDrive   CPU    Memory
+                                 read()     freeze() load()
+                                            jump()
+                                            execute()
+```
+
+It applies the **principle of least knowledge**: the client talks only to its immediate friend, the façade. In Ch. 11 terms, a façade is the natural **public interface of a subsystem or layer**.
+
+| Pros (L14 p20) | Cons (L14 p20) |
+|---|---|
+| Makes code easier to use and understand | **More rework** if the Façade class is improperly designed |
+| Reduces dependencies on classes | **Many façade classes** increase complexity and **reduce run-time performance** |
+| Decouples a client from a complex system | |
+
+*Textbook extras, not in the slides:* **Bridge** decouples an abstraction from its implementation (structurally like Strategy, but the intent is varying *platform* rather than *behaviour*). **Adapter** converts an existing class's interface into the one the client expects.
+
+---
+
+**7. Know how to choose a pattern.** This is the method the tutorials actually test:
+1. **Find what varies** in the problem statement. Look for lists ("LAN, WiFi, Bluetooth, 3G, 4G"), words like *variety*, *vary greatly* and *change over time*, and requirements for *future extension with minimal impact*.
+2. **Classify the variation:**
+
+   | What varies | Pattern |
+   |---|---|
+   | algorithm or policy | **Strategy** |
+   | the set of interested parties | **Observer** |
+   | which concrete class to create | **Factory** |
+   | families of objects to create | Abstract Factory |
+   | a complex subsystem needs a simple entry point | **Façade** |
+   | the number of parts in a whole | Composite |
+   | state-dependent behaviour | State |
+3. **Check it against the Open-Closed Principle.** Can you add a new variant without modifying existing classes? If not, the pattern is applied wrongly, or a second pattern is needed. **Strategy + Factory** and **Observer + Strategy** are the pairings the lectures stress.
 4. **Name the roles explicitly** when you present the class diagram. Marks are awarded for stating *which class plays which role*, not just for drawing boxes.
 
 ## Tutorial #6 Q2 — Network Access Protocols
@@ -1892,12 +2052,12 @@ Key insight: design is **generate-and-test with multiple candidate solutions**, 
 
 2. **Map the roles for Observer:** GES (specifically a `GrainEvent`/`Silo`/`GrainInventory` class) is the **Subject**; each `ProcessingPlant` is a **ConcreteObserver**. Registration of interest is `attach()`; de-registration is `detach()`; grain arrival/departure triggers `notify()`.
 
-3. **Handle "interests in specific types of grains."** A plain Observer broadcasts to *all* observers. Two standard refinements, either acceptable if justified:
+3. **Handle "interests in specific types of grains."** A plain Observer broadcasts to *all* observers. The lecture's name for the fix is **interest subscription + selective notification** (L13 p38–40): `register(observer, grainType)`, `unregister(observer, grainType)`, and `notify(grainType)` calls `update()` only on observers registered for that grain type — exactly the NTULearn "register with your tutorial group" example. Use the lecture's terms in the answer. Two ways to implement it, either acceptable if justified:
    - **Topic/subject-per-grain-type:** one Subject per `GrainType`, so plants attach only to the types they care about. Cleanest, and scales.
    - **Filtered notification:** a single Subject, with each observer registering a `Set<GrainType>` of interests; `notify()` consults the registration before calling `update()`. Simpler, fewer objects.
    State which you chose. This is exactly the known weakness of Observer — *the subject cannot easily tell which observers care about which change* — and showing you know how to address it is worth marks.
 
-4. **Use pull, not push**, or justify push. Because plants have differing interests, `update(subject, event)` letting each plant fetch what it needs is a better fit than pushing a fixed payload.
+4. **Pick an update protocol and justify it** (L13 p36–37). **Pull** (plant calls back `getData(grainType)` for details) or **push + pull** (`update(grainType, quantity)` carries the essentials; the plant pulls more only if interested) both fit, because plants have differing interests. Pure **push** sends every detail whether the plant wants it or not.
 
 ### (b) Class diagram and roles
 
@@ -1984,7 +2144,7 @@ Key insight: design is **generate-and-test with multiple candidate solutions**, 
 
 ### (b) The pattern to add: Factory
 
-Use a **Factory Method** or **Abstract Factory** (either is acceptable; Abstract Factory is the stronger answer if related objects must be created together — e.g. a protocol *and* its matching connection-configuration or security handler).
+**Lead with the lecture's shape: Strategy + (Static) Factory** — it is exactly the EMS example in L14 p8, where `ResourceManager` (Context) uses `DataStoreInterface` (Strategy) and `DataStoreFactory.getDatastore()` creates `FlatFileImpl` / `MySQLImpl` / `DB2Impl`. Swap in `NetworkConnection`, `NetworkProtocol`, `NetworkProtocolFactory.createProtocol()` and the five protocol classes, and that is the answer (the simpler variant below). An **Abstract Factory** is a stronger answer only if related objects must be created together — e.g. a protocol *and* its matching connection-configuration or security handler.
 
 ```
 ┌───────────────────────┐          ┌───────────────────────────────────────┐
@@ -2008,7 +2168,7 @@ Use a **Factory Method** or **Abstract Factory** (either is acceptable; Abstract
 └───────────────────────────┘
 ```
 
-A simpler **Factory Method / parameterised factory** variant, which is perfectly acceptable for this question:
+The **Static Factory** variant (the lecture's template, L14 p7: *Context uses StaticFactory to obtain an object that implements AbstractProduct*):
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -2040,77 +2200,293 @@ A simpler **Factory Method / parameterised factory** variant, which is perfectly
 2. **Open-Closed is now genuinely satisfied end to end.** Adding `5GProtocol` means adding a `FiveGProtocol` class **and** a `FiveGFactory` class — zero modifications to the application, the Context, or any existing protocol. The requirement "deal with further network protocols **with minimal impacts on the application**" is finally met in full.
 3. **The selection logic exists once**, in the factory, where device-capability checks, fallback ordering and configuration can live cohesively.
 4. **Strategy and Factory are complementary, not alternatives** — this is the examinable insight. **Factory answers "which object do I create?"; Strategy answers "how do I use it interchangeably?"** Neither is complete without the other when the set of implementations must be extensible. Saying this sentence explicitly is usually what the tutor is listening for.
-5. *Optional extension worth a line:* if exactly one connection manager should exist for the device, the factory can be a **Singleton**; and a **Facade** over `NetworkConnection` + factory would give the rest of the GES app a single simple entry point.
+5. **Be honest about the Static Factory's limit, then close it.** With a Static Factory, adding `FiveGProtocol` still means editing *one* method (the factory's selection logic) — far better than editing every call site, but not zero. **Strategy + Factory + Dynamic Loading** (L14 p11–14) removes even that: the factory reads the class name from configuration and loads it at run time, so a new protocol is a new class plus a config entry and **no existing line of code changes** — the same mechanism Eclipse plug-ins, Swing Look & Feel and JDBC drivers use. Mentioning this is an easy extra mark.
+6. *Optional extension worth a line:* the factory can hand out a **Singleton** connection manager or create protocols with **lazy initialisation** (both listed as Factory benefits, L14 p9); and a **Façade** over `NetworkConnection` + factory would give the rest of the GES app a single simple entry point.
 
 ---
 
-# Chapter 13 — Testing I: Equivalence Class Partitioning & Boundary Value Analysis *(no lecture slides in this folder)*
+# Chapter 13 — MVC: Composing Design Patterns
 
-**Reading:** [S] Ch. 8 *Software testing* · [BD] Ch. 11 *Testing* · Copeland, *A Practitioner's Guide to Software Test Design*
+**Lecture:** `Lecture 15 MVC Design Patterns.pdf`
+**Reading:** [S] §6.3 Architectural patterns (MVC) · [BD] §6.3 (MVC as an architectural style)
 
 ## Learning Outcomes
 
-**1. Know why systematic test design is necessary.** Exhaustive testing is impossible — the input space of even a trivial function is astronomically large. **Testing can show the presence of defects but not their absence** (Dijkstra). The goal of test design is therefore to **choose a small set of test cases with a high probability of finding defects**, and to be able to **justify** the choice.
+**1. Know the design challenges of interactive, event-driven systems (L15 p2).**
+- UIs are prone to change.
+- The same data can be presented in different ways.
+- UI changes must be easy, possibly even at run time.
+- The display and behaviour must reflect data changes **immediately**.
+- The same presentation can have a different look and feel.
+- The application reacts to user input in different ways.
 
-**2. Distinguish black-box from white-box testing.**
+→ **The UI must NOT be tightly coupled to the core functionality and data.**
 
-| | **Black-box (functional)** | **White-box (structural)** |
-|---|---|---|
-| Basis | The **specification** — what the software should do | The **code** — its internal structure |
-| Knowledge needed | None of the implementation | Full source access |
-| Techniques | Equivalence class partitioning, boundary value analysis, decision tables, state-based testing, use-case testing | Statement coverage, branch coverage, path coverage, basis path testing (Ch. 14) |
-| Finds | Missing functionality, wrong behaviour against spec | Untested code, dead code, logic errors inside a unit |
-| Misses | Untested code paths the spec doesn't mention | Missing functionality — you cannot test code that was never written |
+**2. Walk through the Excel case study (L15 p3–6).**
 
-The two are **complementary**; neither replaces the other.
-
-**3. Equivalence Class Partitioning (ECP).**
-
-**Principle.** Partition the input domain into **equivalence classes** — sets of values for which the program is expected to behave **equivalently**. If one member of a class reveals a defect, the others are assumed to as well; if one passes, the others are assumed to pass. Therefore **test one representative value per class**.
-
-**How to derive classes.** For each input condition, identify:
-- **Valid** equivalence classes — inputs the specification says are acceptable
-- **Invalid** equivalence classes — inputs outside the acceptable set
-
-Common rules:
-
-| If the input condition specifies… | Then derive… |
+| Class | Stereotype |
 |---|---|
-| a **range** (e.g. 1–999) | 1 valid class (within), 2 invalid classes (below, above) |
-| a **specific value** or count | 1 valid class, 2 invalid (one more, one fewer) |
-| a **set of values** treated differently | 1 valid class **per member**, 1 invalid class |
-| a **boolean / must-be condition** | 1 valid class, 1 invalid class |
+| `EditWS` (enterData, showWS) | Boundary |
+| `SheetManager` (updateCell, getData) | Control |
+| `WorkSheet` (data) | Entity |
+| `LineChart` (drawLine), `BarChart` (drawBar) | Boundary |
 
-**Benefit.** Reduces the number of test cases dramatically while retaining coverage of behaviourally distinct inputs, and makes the coverage argument **explicit and reviewable**.
+*Update-worksheet sequence:* `editData → updateCell → storeData`, then SheetManager calls `update` on each chart, and each chart calls `getData` and redraws.
 
-**4. Boundary Value Analysis (BVA).**
+As a **layered architecture**: Presentation (EditWorksheet, BarChart, LineChart) → App Logic (SheetManager) → Persistent Data (Worksheet).
 
-**Principle.** **Defects cluster at the boundaries of equivalence classes** — off-by-one errors, `<` written for `<=`, wrong initialisation, wrong loop termination. ECP tells you *which* partitions exist; BVA tells you *which values within them* to pick.
+**What's wrong with it? (L15 p6).** To refresh the charts, SheetManager must call **up** into the Presentation layer. A lower layer now depends on a higher one, so App Logic and Presentation are **tightly coupled**, and adding a new chart type means editing SheetManager.
 
-**How to derive boundary values.** For each boundary of each equivalence class, test:
-- the value **on** the boundary
-- the value **immediately below** it
-- the value **immediately above** it
+**3. Fix the up-calls with Observer (L15 p7–12).** The need is: *many views must receive an update when the worksheet changes*. The subject/observer viewpoints are the same as in Ch. 12 (*"loose coupling is a benefit for both sides!"*).
+- `SheetManager` implements **`WSSubject`** (`attach`, `detach`, `notify`, `getData`).
+- `EditWS`, `LineChart` and `BarChart` implement **`WSObserver`** (`update()`).
+- Key sentence (L15 p12): ***SheetManager and the views communicate as `WSSubject` and `WSObserver` objects, not as specific manager classes or views.***
 
-(Often written as the **min−1, min, min+1, max−1, max, max+1** set, plus a **nominal** value inside the class.)
+**The lesson (L15 p15).** Layering often needs **up-calls** from lower to higher layers. **Observer allows up-calls without creating a dependency** of the lower layer on the higher one. But Observer alone **doesn't solve every problem**. You may need more than one pattern:
 
-**Robustness testing** extends BVA to include values **outside the legal range entirely**, to check error handling.
+| Remaining challenge | Pattern |
+|---|---|
+| The same presentation can have a different look and feel | **Strategy** (interchangeability) |
+| The application reacts to user input differently | **Strategy** (interchangeability) |
 
-**5. Combining multiple inputs.**
+**4. State the goal and key idea of MVC (L15 p16–17).**
+- **Goal:** make it easy to build interaction-heavy systems, especially ones with **multiple synchronised presentations of shared information**.
+- **Key idea:** separating the **Model** from the **View** and **Controller** allows **multiple Views of the same Model**. If the user changes the Model through one View's Controller, **all other Views** reflect the change.
+- **Why:** you must support several UIs (desktop, web, phone …) with **reusable core functionality**, UI details change often without affecting the core, and adding a new UI should be easy.
 
-| Strategy | Description | Number of tests |
+**5. Know the three components (L15 p18).**
+
+| Component | Responsibility | Layer / stereotype |
 |---|---|---|
-| **Weak normal** | Vary **one** variable at a time through its boundary values; hold all others at a **nominal** value. Only valid values used. | ~4n + 1 for n variables |
-| **Strong normal** | **Cartesian product** of all valid classes across all variables. | multiplicative — grows fast |
-| **Weak robust** | Weak normal plus **invalid** values, one at a time. | ~6n + 1 |
-| **Strong robust** | Cartesian product including invalid classes. | largest |
+| **Model** | Holds the processing (operations) **and** the data | App logic + data (entity-side) |
+| **View** | Presents the output; each View gives a specific presentation of the same Model. **Each View "observes" the Model** and redraws whenever it is notified | Presentation (boundary) |
+| **Controller** | Manages user interaction: captures input events (clicks, key presses) and passes them to the Model and View. **Each View has a Controller**, and the user interacts with the system **only through Controllers** | Presentation (boundary) |
 
-**The single-fault assumption** justifies the "weak" strategies: failures rarely result from two simultaneous faults, so varying one input at a time while holding others nominal is usually sufficient and far cheaper.
+**6. Trace the MVC interaction (L15 p19–21).** MVC is **non-hierarchical (triangular)**, unlike the strict layering of Ch. 11.
+1. The **View subscribes** to the Model (Observer subscription).
+2. The **Controller** gathers user input and **updates the Model** (`model.service()`).
+3. The **Model** updates its data and **notifies all subscribed Views** (Observer notification, `for each o in observers: o.update()`).
+4. Each **View** pulls with `model.getData()` and **redraws**, so the user sees the change.
 
-**6. Document test cases properly.** A test case is not an input — it is a tuple:
-> **Test Case ID · Description / class or boundary covered · Precondition · Input values · Expected output · Actual output · Pass/Fail**
+```
+            user actions
+                 │
+                 ▼
+         ┌──────────────┐  update model (service())  ┌───────────────────────┐
+         │  Controller  │───────────────────────────▶│        Model          │
+         │ handleEvent()│                            │ - data                │
+         └──────────────┘                            │ register / unregister │
+             ▲ «create»                              │ notify() getData()    │
+             │ 1 view (Strategy)                     └───────────────────────┘
+         ┌──────────────┐  ◀── change notification: update() ──┘  ▲
+         │    View      │                                         │
+         │  update()    │──────────── getData(), redraw ──────────┘
+         └──────────────┘          (View is an Observer; 1 Model : * Views)
+```
 
-**Expected output must be derived from the specification *before* execution**, otherwise you are not testing, you are observing.
+**7. Know which patterns live inside MVC (L15 p22, p24).**
+
+| Pattern | Where | Role |
+|---|---|---|
+| **Observer** | View–Model (also Controller–Model) | Model = Subject, Views = Observers, so **many Views stay in sync with one Model** |
+| **Strategy** | View–Controller (also View–Look & Feel) | **View = Context, Controller = Strategy**. Swap the Controller and the View responds to input differently |
+| **Abstract Factory** | Creating a View's Controller or look & feel | Creates a matching family |
+| Composite | Nested views (a Panel contains Buttons; nested Panels) | |
+| Decorator | Attaching extra UI features, e.g. scrolling, to a view | |
+| Command | Undo / redo of user actions | |
+
+> **Observer, Strategy and Abstract Factory are the key patterns in MVC.** The others matter for interactive systems in general.
+
+**8. Map Excel onto MVC (L15 p23).** `EditWSView` is a View that creates and holds an `EditWSCtrler` (Controller). `EditWSCtrler.handleEnter()` calls `sheetMgr.updateCell()`. `SheetManager` is the Model (`WSSubject`). `LineChart` and `BarChart` are further Views (`WSObserver`) that call `sheetMgr.getData()` in `update()`.
+
+**9. Know the pros and cons (L15 p25).**
+
+| Pros | Cons |
+|---|---|
+| **Simultaneous development** of M, V and C | **Code navigability / steep learning curve**: new layers of abstraction and decomposition rules to learn |
+| **Multiple views** of one model | **Multi-artifact consistency**: one feature is scattered over three artifacts that must be kept consistent |
+| **High cohesion**: related controller actions are grouped, and the views of a model are grouped | |
+| **Low coupling** among models, views and controllers | |
+
+**10. Summary (L15 p26).** *Problem:* interactive, event-driven systems. *Solution:* **pattern composition**, i.e. Observer + Strategy + …. It's found in real frameworks such as **Django, Rails and ASP.NET MVC**.
+
+---
+
+# Chapter 14 — Testing I: Fundamentals, Equivalence Class & Boundary Value Testing
+
+**Lecture:** `Lecture 16 Testing Introduction.pdf` · `Lecture 17 Testing Equvalence Class.pdf` · `Lecture 18 BV Testing Lecture.pdf`
+**Reading:** [S] Ch. 8 *Software testing* · [BD] Ch. 11 *Testing*
+
+## Learning Outcomes
+
+### Testing fundamentals (L16)
+
+**1. Place testing in the SDLC (L16 p2).** The analysis model, architecture and design model are realised as source code. Testing **verifies** that code with **black-box testing (ECs, BVs)** against the requirements and **white-box testing (CFG, basis paths)** against the implementation.
+
+**2. Define a bug (L16 p3–4).** *"An error, flaw, failure or fault in a computer program or system that causes it to produce an incorrect or unexpected result, or to behave in unintended ways."* The name comes from 1947, when a moth was found zapped on a relay of Harvard's **Mark II**: the "first computer bug".
+
+**3. Explain why we can't test everything (L16 p6–9).** The spec for `blech(int input)` is *"add 1 to the input, divide by 30000, return it"*, but the code does `input = input – 1`.
+- A 16-bit `int` has **2¹⁶ = 65,536** possible inputs. Testing them all is possible but **too costly**, and real programs have many inputs.
+- "Random-looking" inputs such as 1, 42, 32000 and −31218 all return the **same** answer from the buggy and correct versions, so **none of them catches the bug**.
+- Splitting the input into the three output classes of `Add1Divide30000` and testing their boundaries does catch it:
+
+| Class | Correct output |
+|---|---|
+| −32768 … −30001 | −1 |
+| −30000 … 29998 | 0 |
+| 29999 … 32767 | 1 |
+
+For example, 29999 should return 1 but the buggy code returns 0. **Systematic selection beats guessing.** (The slide writes the last upper boundary as "32766: 32766, 32767, 32768"; it should be 32767.)
+
+**4. Know what testing is, and isn't (L16 p12, p19).**
+- **Testing ≠ debugging.** Testing *finds* failures; debugging *locates and fixes* the fault.
+- Beyond that, a tester's aim matures: showing the software **works** → showing it **doesn't work** → reducing the perceived **risk** of failure to an acceptable level → producing low-risk software **without much testing effort**.
+- Definition: *"Software testing is an investigation conducted to provide stakeholders with information about the quality of the software product or service under test."*
+- Testing is **dynamic execution**. Its aim is **to find bugs, rather than to prove there are none**.
+
+**5. Distinguish the two types of testing (L16 p13).**
+
+| | **Black-box** | **White-box** |
+|---|---|---|
+| What you analyse | **Requirements and specifications**, e.g. *"income must be between $1500 and $8000 per month"* | **Implementation details**: internal paths and structure |
+| Techniques in this course | **Equivalence class testing** and **boundary value testing** (Ch. 14); state-based testing | **Control-flow testing** (Ch. 15); data-flow testing |
+| Finds | Missing or wrong behaviour against the spec | Untested paths, logic errors inside a unit |
+| Misses | Code paths the spec doesn't mention; hidden special cases | **Paths that were never implemented** (missing requirements) |
+
+They are **complementary**: *"Both testings are important!"*
+
+**6. Know the four levels of testing (L16 p14).**
+
+| Level | Tests |
+|---|---|
+| **Unit** (this course) | One unit on its own |
+| **Integration** | Units in combination |
+| **System** | Everything: functionality, usability, reliability, performance, portability, security … |
+| **Acceptance (UAT)** | The customer accepts the software "and gives us their money" |
+
+**7. Know the five ingredients of a test case (L16 p15–17).**
+
+| Ingredient | Meaning | In a JUnit test |
+|---|---|---|
+| **Name** | Distinct name of the test case | Method name, e.g. `testLowIncome()` |
+| **Location** | Path to the test program and its inputs | Package / class, e.g. `mortgageapplication.test` |
+| **Input** | Input data or commands | The local variables passed to `analyzeApplication(…)` |
+| **Oracle** | **Expected** test output | The expected value in `assertEquals` |
+| **Log** | **Actual** output produced by the test | The `result` returned |
+
+In the mortgage test table, each row is a test case. The row `$1501, 8, Person, Condo` has oracle **Reject** but log **Approval**: a **failed test, so a bug has been found**. That is a test doing its job.
+
+**8. Know the trade-off in test execution order (L16 p18).**
+
+| | **Cascading** (create → read → update → delete → read deleted) | **Independent** (self-contained) |
+|---|---|---|
+| + | Smaller, simpler test cases | Can run **in parallel**; one failure doesn't invalidate others |
+| − | **If one fails, the later ones may be invalid** | Larger, more complex test cases |
+
+### Black-box testing (L17)
+
+**9. Know the black-box process (L17 p6).**
+- **The tester:** (1) analyses the requirements/specification to find ECs and BVs; (2) chooses valid and invalid inputs; (3) determines the expected outputs (oracle); (4) constructs the tests, e.g. in JUnit. **Steps 1–2 are the hardest.**
+- **The testing engine (e.g. JUnit):** (1) executes the tests; (2) compares the log with the oracle; (3) decides whether the SUT works.
+
+**10. Know black-box pros and cons (L17 p7).** It applies at **all levels** (unit, integration, system, acceptance).
+- **Pro:** it directs the tester to a **very small subset of inputs** that is highly likely to find bugs.
+- **Con:** you **can't know how much of the implementation has been tested**, because there is no notion of coverage.
+
+**11. Know the two assumptions black-box testing rests on (L17 p9–10).**
+- **Requirements are verifiable.** *"The company must not hire too-young or too-old people"* is **not** verifiable. Turn it into ranges: 0–15 don't hire, 16–17 part-time, 18–54 full-time, 55–99 don't hire.
+- **Code is testable.** An `if (age==0) … if (age==99)` ladder of 100 separate checks defeats equivalence classes, because any single age could be special-cased. So does a hidden rule like `if (age==35 && name=="xingzc") hire=CEO`, which no spec-based test will ever find. (The slide's "good" code also overlaps at 18, giving PART then FULL: a real bug that BV testing at 18 would catch.)
+
+**12. Define an equivalence class (L17 p12).** A set of input values forms an EC if:
+- they are all **supposed to produce the same output**,
+- **if one value catches a bug, the others probably will too**, and
+- **if one value doesn't catch a bug, the others probably won't either**.
+
+So **test one representative per class**: *"Test only one value for each range, one invalid value below 0, and one invalid value above 99"* (L17 p11).
+
+**13. Derive ECs using the two rules (L17 p15–21).**
+
+| Input type | ECs | Example |
+|---|---|---|
+| **Range of values** | **ONE valid EC, TWO invalid ECs** | Income $1500–$80000/month → valid `1500 ≤ x ≤ 80000`; invalid `x ≤ 1499`, `x ≥ 80001` |
+| | | No. of mortgages 0–5 → valid `0 ≤ x ≤ 5`; invalid `x ≤ −1`, `x ≥ 6` |
+| | | Password length 4–8 → valid `4 ≤ x ≤ 8`; invalid `x ≤ 3`, `x ≥ 9` |
+| **Discrete values** | **ONE valid EC, ONE invalid EC** | Applicant type: valid {Person}; invalid {Trust, Company, Partnership, …} |
+| | | Property type: valid {HDB, Condo}; invalid {Townhouse, Mobilehome, …} |
+| | | Password characters: valid {a–z, A–Z, 0–9}; invalid {+, −, (, ), …} |
+
+**When one range has several outputs, each sub-range is its own valid EC** (L17 p18). Hiring has valid ECs `0–15` (don't hire), `16–17` (part-time), `18–54` (full-time) and `55–99` (don't hire), and invalid ECs `age ≤ −1` and `age ≥ 100`. Tutorial #8's silo works the same way.
+
+*Textbook variant:* some texts give "one valid EC **per member**" for discrete sets. The lecture groups all accepted values into one valid EC; use the lecture's rule.
+
+**14. Design test cases from ECs (L17 p22–28).**
+- **Valid inputs: combine.** One test case may carry a valid value for **every** parameter at once. If every parameter has only one valid EC, a **single** test case satisfies EC coverage. You **may** enumerate every value of a *small* valid EC (mortgages 0–5; property HDB/Condo), but not of a large one (income, password characters). Vary a few more income values while you enumerate:
+
+| Income | #Mortgages | Applicant | Property | Expected |
+|---|---|---|---|---|
+| $1500 | 0 | Person | Condo | Approval |
+| $2000 | 1 | Person | Condo | Approval |
+| $5000 | 2 | Person | Condo | Approval |
+| $12345 | 3 | Person | HDB | Approval |
+| $76543 | 4 | Person | HDB | Approval |
+| $80000 | 5 | Person | HDB | Approval |
+
+- **Invalid inputs: ONLY ONE INVALID INPUT PER TEST CASE**, with valid values for all other parameters. **Why?** So that you **learn the error handling for each type of invalid input**. `$100, 8, Company, Mobilehome` would be rejected, but you couldn't tell *which* input caused it, or whether the other three checks work at all.
+
+| Income | #Mortgages | Applicant | Property | Expected |
+|---|---|---|---|---|
+| **$100** | 1 | Person | Condo | Reject |
+| **$81000** | 2 | Person | HDB | Reject |
+| $5000 | **−1** | Person | Condo | Reject |
+| $10000 | **8** | Person | HDB | Reject |
+| $12345 | 3 | **Company** | HDB | Reject |
+| $76543 | 4 | Person | **Mobilehome** | Reject |
+
+You may also enumerate a small *invalid* EC.
+
+**15. Test invalid inputs at all? Choose defensive testing (L17 p25).**
+
+| **Testing by contract** | **Defensive testing** |
+|---|---|
+| Test only **valid** inputs, i.e. those that satisfy the pre-conditions | Test **both valid and invalid** inputs; don't assume users will use the code as intended; check that invalid input doesn't cause unforeseen errors or abnormal termination |
+
+**Testers prefer defensive testing**, because if it doesn't work, *the testers* get the blame.
+
+### Boundary value testing (L18)
+
+**16. Know which values BVT tests (L18 p11–12).**
+- **BVT applies only to ranges of values.** *Do discrete values, such as property type, have boundary values?* **No.**
+- For **each boundary of each EC**, choose **three** values: **on** the boundary, **just below** and **just above**.
+- "Just below/above" depends on the value's **unit**: ±1 for integers, ±0.01 for cents, and so on.
+- **Don't duplicate:** drop a just-below or just-above value if it falls inside another EC *or the current EC*, because that EC is already tested.
+
+**17. Work out the boundary values (L18 p13–15).**
+
+| Parameter (valid EC) | Lower boundary | Upper boundary | **Valid BVs** | **Invalid BVs** |
+|---|---|---|---|---|
+| Income `1500–80000` | 1499, **1500**, 1501 | 79999, **80000**, 80001 | {1500, 80000} | {1499, 80001} |
+| #Mortgages `0–5` | −1, **0**, 1 | 4, **5**, 6 | {0, 5} | {−1, 6} |
+| Password length `4–8` | 3, **4**, 5 | 7, **8**, 9 | {4, 8} | {3, 9} |
+| Hiring `0–15 / 16–17 / 18–54 / 55–99` | −1,0,1 · 15,16,17 · 17,18,19 · 54,55,56 | 14,15,16 · 16,17,18 · 53,54,55 · 98,99,100 | {0, 15, 16, 17, 18, 54, 55, 99} | {−1, 100} |
+
+(The hiring slide prints the last valid BV as "00"; it means 99.)
+
+**18. Design test cases from BVs (L18 p16, p18).** The rules are the same as for ECs, using boundary values:
+- **Valid:** combine **on-the-boundary** values of every parameter in one test case.
+- **Invalid:** use a **just-below or just-above** value that lands in an invalid EC, **one per test case**, with all other inputs valid.
+
+For two range parameters A and B: **(1) Valid A + Valid B · (2) Valid A + Invalid B · (3) Invalid A + Valid B.** A test case contains **at most one invalid input**.
+
+**19. The one-table summary (L18 p17).**
+
+| | **Range of values** | **Discrete values** |
+|---|---|---|
+| **ECs** | ONE valid EC, TWO invalid ECs | ONE valid EC, ONE invalid EC |
+| **BVs** (per EC) | Lower boundary: on, just-below, just-above. Upper boundary: on, just-below, just-above | **No boundary values** |
+
+**20. Remember that real-world requirements are messy (L17 p30–32).** *"A key skill is to derive verifiable requirements for effective black-box testing."* Before partitioning, rewrite vague requirements into precise ranges and sets. This links straight back to Ch. 2 and Tutorial #1.
+
+*Textbook extra:* the lecture's rule matches what textbooks call **weak robust** testing under the **single-fault assumption** (failures rarely come from two simultaneous faults). *Strong* testing takes the Cartesian product of classes and grows multiplicatively.
 
 ## Tutorial #8 — Equivalence Class and Boundary Value Testing (GES Silo)
 
@@ -2151,6 +2527,12 @@ Also note the acceptance rule: *"cannot accept any more grain if its temperature
 
 Nominal (typical) values: H2 → 20, H3 → 42, H4 → 75.
 
+> **Lecture-style answer (L18 p12–14, the hiring-rules example).** Treat each class as an integer range — H2 = 0–34, H3 = 35–50, H4 = 51–100 — and take *on / just-below / just-above* at **both** ends of **each** class, then drop any value that falls inside another class or the current one (it's already tested). What's left:
+> - **Valid boundary values:** {0, 34, 35, 50, 51, 100}
+> - **Invalid boundary values:** {−1, 101}
+>
+> The tables here also include 1, 36, 49 and 99. They're harmless, but the lecture's dedup rule doesn't require them.
+
 **TEMPERATURE** (range −10 to 100 °C, normal 40–60 °C)
 
 | EC ID | Equivalence class | Condition | Validity | Expected silo behaviour |
@@ -2172,9 +2554,11 @@ Nominal (typical) values: H2 → 20, H3 → 42, H4 → 75.
 
 Nominal values: T2 → 20, T3 → 50, T4 → 80.
 
+> **Lecture-style BV sets** (T2 = −10–39, T3 = 40–60, T4 = 61–100): **valid** {−10, 39, 40, 60, 61, 100} · **invalid** {−11, 101}.
+
 ### (b) Systematic test case design
 
-**Strategy: weak robust equivalence testing + boundary value analysis.** Vary **one** variable at a time across its classes and boundaries, holding the other at a **nominal normal** value (humidity 42%, temperature 50 °C). This applies the **single-fault assumption** and keeps the suite small; then add a handful of combination cases to cover the AND rule.
+**Strategy: the lecture's rule (L18 p16–18): combine valid values freely, but put at most ONE invalid input in any test case.** Textbooks call this *weak robust* testing. Vary **one** variable at a time across its classes and boundaries, holding the other at a **nominal normal** value (humidity 42%, temperature 50 °C). This applies the **single-fault assumption** and keeps the suite small; then add a handful of combination cases to cover the AND rule.
 
 **Part 1 — Humidity varied, temperature held at nominal normal (50 °C)**
 
@@ -2247,72 +2631,129 @@ Weak (one-at-a-time) testing never exercises the case where **both** conditions 
 
 ---
 
-# Chapter 14 — Testing II: Control Flow Testing *(no lecture slides in this folder)*
+# Chapter 15 — Testing II: Control Flow (White-box) Testing
 
+**Lecture:** `Lecture 19 -20 Control Flow Testing Lecture.pdf` · `Lecture 21 Software Maintenance.pdf` p.1–12 (white-box summary)
 **Reading:** [S] §8.1 Development testing · [BD] Ch. 11 · McCabe, *A Complexity Measure* (1976)
 
 ## Learning Outcomes
 
-**1. Build a Control Flow Graph (CFG).** A directed graph in which:
-- **Nodes** represent **statements or blocks of sequential statements** that always execute together (a *basic block*)
-- **Edges** represent **transfers of control** between nodes
-- **Predicate nodes** are nodes with **two or more outgoing edges** — they correspond to decisions (`if`, `while`, `for`, `case`)
-- There is one **entry** node and (conventionally) one **exit** node
+**1. Know the white-box process (L19 p3).**
+- **The tester:** (1) analyses the SUT's **implementation** by drawing its control-flow graph (or data-flow graph); (2) identifies **execution paths** through it; (3) chooses inputs that make the SUT execute the selected paths; (4) determines the expected outputs (oracle); (5) constructs the tests. **Steps 1–3 are the hardest.**
+- **The testing engine:** the same three steps as black-box (execute, compare log with oracle, judge).
 
-**Construction rules:**
+**2. Know white-box pros and cons (L19 p4).** It applies at **all levels**.
 
-| Construct | CFG fragment |
+| Pros | Cons |
 |---|---|
-| Sequence | one node per statement, or a single node for a run of statements with no branching |
-| `if (c) { A }` | predicate node → A → merge; predicate node → merge |
-| `if (c) { A } else { B }` | predicate node → A → merge; predicate node → B → merge |
-| `while (c) { A }` | predicate node → A → **back-edge to the predicate node**; predicate node → exit |
-| `do { A } while (c)` | A → predicate node → back-edge to A; predicate node → exit |
-| `switch` | predicate node with one edge per case |
+| Ensures **every path** through the SUT has been identified and tested | **Testing all execution paths is generally infeasible** (loops, many decision points) |
+| | **May not detect data or arithmetic bugs**, e.g. `a = a − 1` where `a + 1` was meant, or `a/b` with `b = 0` |
+| | **Never finds paths that aren't implemented**, i.e. requirements missing from the code |
 
-**2. Compute Cyclomatic Complexity, V(G).** Three equivalent formulas:
+**3. Build a Control Flow Graph (L19 p5–12).** A CFG is a **directed graph**. Each **node** is a **process block** or a **decision point**, and each **edge** is control flow (*what happens after what*).
+
+| Construct | CFG rule |
+|---|---|
+| **Process block** | A run of sequential statements with **no** `if/while/for/switch/goto`. **One edge in, one edge out.** Any number of statements make one node. |
+| **`if`** | **Binary decision point**: one edge in, two out (true → body → merge; false → merge) |
+| **`if-else`** | Binary decision point: true → s1, false → s2, both merge at s3 |
+| **`while`** | Binary decision point, plus a **loop-back edge from the last statement of the body to the decision point** |
+| **`for`** | **Transform into `while` first**: `for(a=100; a>0; a--){s1}` becomes `a=100; while(a>0){s1; a--;}` |
+| **`switch`** | **N-ary decision point**: one edge in, **N edges out** (one per case, including `default`) |
+| `do … while` *(textbook extra)* | Body → decision point → back-edge to the body; decision point → exit |
+
+**Worked example: `computeP(a, b)` (L19 p12).** It has seven nodes:
+- `2-3` (`q=1; x=2`)
+- `4` (`if a>0`)
+- `5` (`x=x+1`)
+- `7` (`p=q/x`)
+- `8` (`if b==3`)
+- `9` (`p=max(q,x)`)
+- `11` (`return p`)
+
+**4. Count the execution paths (L19 p13–15, p21).** An **execution path** is a sequence of process blocks and decision points through the CFG.
+- **Each decision point doubles the number of paths**, giving 2^|decisions|. `computeP` has 2 decisions, so **4 paths**.
+- **Each loop multiplies the paths by the number of iterations**, so full path coverage is usually infeasible.
+
+**5. Know the four coverage levels (L19 p16–22; L21 p4).**
+
+| Level | Criterion | Requirement | `computeP` example |
+|---|---|---|---|
+| **1** | **100% statement coverage** | Every statement (CFG **node**) executed at least once | 1 test: `a=1, b=3` → 2-3,4,5,7,8,9,11. *"Have we missed anything?"* Yes: neither false branch is taken |
+| **2** | **100% branch coverage** | Every branch out of every decision point taken at least once (each binary decision is **true and false**) | 2 tests: `a=1, b=3` (T,T) and `a=0, b=2` (F,F) |
+| **3** | **Basis path coverage** | The **minimum number of basis paths** each executed at least once | 3 tests (see LO 8) |
+| **4** | **100% path coverage** | **Every** execution path executed | 4 tests: add `a=1, b=2` (T,F) and `a=0, b=3` (F,T). **May be infeasible in general** |
+
+Each level **subsumes** the one before. Basis path testing **guarantees 100% statement and branch coverage**.
+
+*Textbook extras:* **condition coverage** (each atomic condition true and false) and **MC/DC** (each atomic condition shown to independently affect the outcome; required in avionics) sit between branch and path coverage. They aren't in the slides.
+
+**6. Define a basis path (L19 p22).**
+- A **basis path** (or **linearly independent path**) traverses **at least one new edge** (and so at least one new node) that no previously chosen path has traversed.
+- A **basis set** is a set of linearly independent paths.
+- The basis set **is not unique**: a different baseline gives a different set, but **every basis set has the same size**.
+- Basis path testing is how you cope with the **exponential combination of branches**.
+
+**7. Compute Cyclomatic Complexity (L19 p25–27).** CC measures how complex a program is in terms of its decision points. **Higher CC means more basis paths to test**: CC = 6 means 6 basis paths.
 
 ```
-(1)  V(G) = E − N + 2        E = number of edges, N = number of nodes
-(2)  V(G) = P + 1            P = number of predicate (decision) nodes
-(3)  V(G) = R                R = number of enclosed regions + 1 (the outer region),
-                                 for a planar graph
+CC = |edges| − |nodes| + 2
+CC = |decision points| + 1          (only when ALL decision points are binary)
 ```
 
-**Interpretation of V(G):**
-- The number of **linearly independent paths** through the code — i.e. the size of the **basis path set**
-- An **upper bound** on the number of test cases needed for branch coverage, and a **lower bound** on the number needed for path coverage
-- A **complexity metric**: values above ~10 indicate a module that should be considered for refactoring
+The two formulas give the same value when every decision is binary. For `computeP`: |edges| = 8, |nodes| = 7, so **CC = 8 − 7 + 2 = 3**. Equivalently, 2 decisions + 1 = **3**.
 
-**Compound conditions.** If a decision contains compound predicates joined by `&&` or `||`, each atomic condition can be treated as a **separate predicate node** (short-circuit evaluation makes this the literal control flow). Convention varies:
-- Counting the whole decision as **one** predicate node → the simpler, conventional answer
-- Counting **each atomic condition** → the more rigorous answer, giving a higher V(G)
+*Textbook extras:*
+- **CC = number of regions** of the planar graph, counting the outer region.
+- CC above **~10** suggests the module should be refactored.
+- **Compound conditions** (`&&`, `||`) can be counted as one decision (the conventional answer) or one per atomic condition (a higher CC). **State which convention you used.**
 
-**Always state which convention you used.**
+**8. Select a basis set (L19 p28–32; L21 p8–9).**
+1. **Pick a baseline path:** a *reasonably typical* path of execution, the **most important path from the tester's point of view**. It need not be the shortest one.
+2. **Flip the outcome of the first decision point**, keeping as many other decisions as possible the same.
+3. **Flip the second decision point**, again keeping the others the same.
+4. Continue until you have **CC paths**.
+5. Choose input values that drive each path, and give the **expected output** for each.
 
-**3. Know the coverage criteria, in increasing strength.**
-
-| Criterion | Requirement | Note |
+| Basis path (`computeP`) | Decisions | Test case |
 |---|---|---|
-| **Statement coverage** | Every statement executed at least once | Weakest; an `if` with no `else` reaches 100% without ever taking the false branch |
-| **Branch (decision) coverage** | Every **decision outcome** (true *and* false) taken at least once | **Subsumes statement coverage** |
-| **Condition coverage** | Every **atomic condition** evaluates both true and false | Does not necessarily subsume branch coverage |
-| **Branch/condition coverage** | Both of the above | |
-| **MC/DC** | Each atomic condition shown to **independently affect** the decision outcome | Required for avionics (DO-178B Level A) |
-| **Path coverage** | Every **execution path** taken | Infeasible in general — a single loop gives unbounded paths |
-| **Basis path coverage** | Every path in a **basis set** of V(G) linearly independent paths | **The practical compromise** — McCabe's method |
+| I (baseline): 2-3, 4, **5**, 7, 8, 11 | a>0 **T**, b==3 **F** | `a = 4, b = 2` |
+| II (flip 1st): 2-3, 4, 7, 8, 11 | a>0 **F**, b==3 F | `a = 0, b = 5` |
+| III (flip 2nd): 2-3, 4, 5, 7, 8, **9**, 11 | a>0 T, b==3 **T** | `a = 7, b = 3` |
 
-**4. Derive a basis path set.**
-1. Draw the CFG
-2. Compute V(G)
-3. Identify a **baseline path** — typically the simplest path through the code
-4. Derive each further path by **flipping one decision** at a time relative to an already-derived path, keeping all other decisions as they were
-5. Stop at V(G) paths
-6. **Design a test case (input values + expected output) for each path**
+Taking path II as the baseline instead gives another valid set: {2-3,4,7,8,11 · 2-3,4,5,7,8,11 · 2-3,4,7,8,9,11}. **Only the third path differs, and the size is still 3** (L19 p32).
 
-A path is **linearly independent** if it introduces at least one edge not present in any previously derived path.
+**9. Handle infeasible basis paths (L19 p33–34).** When decisions are **correlated**, some basis paths cannot be executed by any input. Example:
+```
+1 x = 0;  2 if (a>0)  3 x = x+1;  4 y = x*2;  5 if (x>0)  6 print(x)  else  7 print(y);  8 return;
+```
+Here `x > 0` exactly when `a > 0`, and CC = 3.
 
-**5. Know the limitation.** Some basis paths may be **infeasible** — no input can cause them, because of dependencies between decisions. When this happens, say so explicitly and substitute the nearest feasible path. Reporting an infeasible path with a fabricated test case is worse than reporting the infeasibility.
+| Selection method | Basis set | Result |
+|---|---|---|
+| Flip one decision at a time | I 1,2,3,4,5,6,8 (`a=4`) · II 1,2,4,5,6,8 **infeasible** · III 1,2,3,4,5,7,8 **infeasible** | **Two infeasible paths**, so only one test, and the branches into 6 and 7 aren't fully tested |
+| **Change both decisions at once** for path III | I 1,2,3,4,5,6,8 (`a=4`) · II infeasible · III **1,2,4,5,7,8** (`a=0`) | **Only one infeasible path**, two tests |
+
+**Lesson:** when decisions are correlated, flip them **together** to **minimise infeasible paths**. Report the remaining infeasible path as infeasible; never invent a test case for it.
+
+**10. Handle loops (L19 p35–37; L21 p11).**
+- When selecting basis paths, take each loop **zero times and once**. Ignore further iterations.
+- For the **baseline**, take the **false branch first** at the loop decision (**don't enter the loop**). Then enter it **once** (true branch) for the next path.
+- The **actual** execution for the chosen inputs **may iterate many times**. That's fine.
+
+**Exercise: `doSomething(int n)`** (`a=0; while(a<n){ if(a<3) print("X") else print("Y"); a++; }`). There are 2 decisions, so **CC = 2 + 1 = 3**.
+
+| Basis path | Test | Real execution path |
+|---|---|---|
+| I (baseline, loop not entered): 1, 2, 10 | `n = 0` | 1, 2, 10 |
+| II: 1, 2, 3, 4, 8, 2, 10 | `n = 1` | 1, 2, 3, 4, 8, 2, 10 |
+| III: 1, 2, 3, 6, 8, 2, 10 | `n = 4` | 1, 2, 3,4,8, 2, 3,4,8, 2, 3,4,8, 2, **3,6,8**, 2, 10 (the 4th iteration prints "Y") |
+
+Path III can't run the `else` branch on the first iteration (`a = 0 < 3`), so the test must loop until `a = 3`.
+
+**11. Summary (L19 p38; L21 p12).** ***Both testings are important!***
+- **Black-box:** equivalence class testing (ranges and discrete values), plus boundary value testing (ranges only).
+- **White-box:** draw the CFG; know statement, branch, basis-path and path coverage; for basis path testing, compute CC (how many basis paths), select the basis paths, and choose input values to execute them.
 
 ## Tutorial #9 — Control Flow Testing
 
@@ -2502,7 +2943,69 @@ V(G) = P + 1 = 3 + 1 = 4
 7. **Check every basis path for feasibility, and adjust.** This question has a trap: the "obvious" second basis path — take the `n<0` branch, skip the loop, and print "The sum is" — is **infeasible**. If `n < 0` then after `n = -n` we have n ≥ 1, so `i < n` is true at the first test; the only way to skip the loop is `result <= upperbound` being false at entry, i.e. `0 > upperbound`. But then at line 11 `result` is still 0, so `0 <= upperbound` is false there too, forcing the **else** branch. Hence P2 must end at N8, not N7 — which is exactly why its test case is `n = −1, upperbound = −1`. Finding this is most of the marks for part (d).
 8. **A basis set is not unique.** Different baseline choices give different valid basis sets of the same size. What must hold: exactly V(G) paths, each introducing something new, each (ideally) feasible, and each with a concrete test case and a **predicted** expected outcome.
 9. **Always give expected outputs, not just inputs.** Part (d) explicitly asks for "a test case (input parameters) **and expected outcome**" — and the expected outcome must include both the printed string **and** the return value, since `sum` does both.
-10. **Note the latent defect this exercise exposes.** `sum(n, upperbound)` is documented as "the sum of 1..n", but when `n < 0` it silently computes the sum of `1..|n|` — and when the loop exits early on `result > upperbound` it returns a **partial** sum while reporting "too large". Both are specification questions, not coding errors *per se*, and control-flow testing alone will never flag them — you need the **black-box** techniques of Chapter 13 to compare behaviour against the specification. This is the clearest illustration in the whole course of why white-box and black-box testing are complementary.
+10. **Note the latent defect this exercise exposes.** `sum(n, upperbound)` is documented as "the sum of 1..n", but when `n < 0` it silently computes the sum of `1..|n|` — and when the loop exits early on `result > upperbound` it returns a **partial** sum while reporting "too large". Both are specification questions, not coding errors *per se*, and control-flow testing alone will never flag them — you need the **black-box** techniques of Chapter 14 to compare behaviour against the specification. This is the clearest illustration in the whole course of why white-box and black-box testing are complementary.
+
+---
+
+# Chapter 16 — Software Maintenance
+
+**Lecture:** `Lecture 21 Software Maintenance.pdf` p.13–22
+**Reading:** [S] Ch. 9 *Software evolution* · Fowler, *Refactoring* (1999) · van Vliet, *Software Engineering: Principles and Practice* 3e
+
+## Learning Outcomes
+
+**1. Know the scale of the problem (L21 p14).** More than **100 billion lines of code** are estimated to be in production worldwide, and **up to 80%** of it is **unstructured, patched and badly documented** (van Vliet). Most software work is therefore maintaining code, not writing new code.
+
+**2. Know the three causes of maintenance problems (L21 p15).**
+
+| Cause | What it looks like | Remedy |
+|---|---|---|
+| **Unstructured code** | Many `GOTO`s give **spaghetti code**. Also poor and inconsistent naming, long procedures, **strong coupling, weak cohesion**, deeply nested `IF`s | Structured programming (`IF-ELSE` etc.), and the design principles of Ch. 12 |
+| **Insufficient domain knowledge** | Maintainers must understand the system from its source code, and the more spaghetti-like the code, the harder it is to untangle | Readable structure; documentation; domain models (Ch. 5) |
+| **Insufficient documentation** | None, out of date, or not enough | Keep the SRS and design documents alive alongside the code |
+
+**3. Define software maintenance (L21 p16–17).** IEEE 610.12 (1990):
+> *"The process of modifying a software system after delivery to correct faults, improve performance or other attributes, or adapt to a changed environment."*
+
+Maintenance covers **correcting errors** found after delivery and **adapting** the software to changing requirements and environments. It is done by **modifying existing components and/or adding new ones**.
+
+**4. Know the three types of maintenance and their share of effort (L21 p18–19).**
+
+| Type | Meaning | Share of effort |
+|---|---|---|
+| **Fault repair** | Fix bugs and vulnerabilities; correct the ways it fails to meet its requirements | **24%** |
+| **Environmental adaptation** | Make the system run in a different environment (computer, OS, …) from its original one | **19%** |
+| **Functionality addition / modification** | Change the system to satisfy **new requirements** | **58%** |
+
+*(Figures from Sommerville 9e, as on the slide. They add to 101% because of rounding.)*
+
+**The point to make in an exam:** most maintenance effort is **not bug fixing**. It is **evolving the system to new requirements**. That's why the course pushes **design for change**: Open-Closed, Strategy + Factory, Observer and MVC all exist to make the 58% cheap.
+
+*Textbook mapping:* these types correspond to **corrective**, **adaptive** and **perfective** maintenance. **Preventive** maintenance (improving the code to head off future problems) is what refactoring does.
+
+**5. Define refactoring (L21 p20–21).** *Refactoring is the process of making improvements to a program to slow down degradation through change.* It **modifies the program without adding functionality** in order to:
+- **improve its structure**
+- **reduce its complexity**
+- **make it easier to understand**
+
+> **Refactoring does not change the behaviour of the software.**
+
+It is a **continuous process** throughout development and evolution, not a one-off clean-up. It is meant to **avoid the structural and code degradation** that drives up maintenance cost. This links to XP's "refactor mercilessly" (Ch. 9), and to your test suite (Ch. 14–15), which proves that behaviour is unchanged.
+
+**6. Recognise the "bad smells" in code (L21 p22, after Fowler 1999).** The refactoring column is a *textbook extra* from Fowler.
+
+| Bad smell | Meaning | Typical refactoring |
+|---|---|---|
+| **Duplicate code** | The same code in several places | Extract Method; pull up into a superclass |
+| **Long methods** | A method doing too much | Extract Method |
+| **Large class** | A class with too many responsibilities (low cohesion) | Extract Class |
+| **Temporary field** | A field that is only set in certain circumstances | Extract Class; introduce a Null Object |
+| **Switch (case) statements** | The same `switch` on a type code repeated around the code | **Replace Conditional with Polymorphism**, i.e. **Strategy / State** (Tutorial #6 Q2) |
+| **Lazy class** | A class that does too little to justify itself | Inline Class; collapse the hierarchy |
+| **Data clumping** | The same group of data items recurs in several places | Introduce Parameter Object; Extract Class |
+| **Tight coupling of two classes** | Classes that know too much about each other's internals | Move Method / Move Field; hide behind an interface or a **Façade** |
+
+The *switch statements* smell is the same problem Strategy solves in Ch. 12. Spotting that link is the kind of connection exam questions reward.
 
 ---
 
@@ -2522,12 +3025,14 @@ Dynamic model: State Machine Diagrams · Activity Diagrams · Sequence Diagrams
 Software Requirements Specification  ──── SIGN-OFF ────
         ↓ System Design (Ch. 11)
 Software Architecture: components + connectors, architectural style
-        ↓ Object Design (Ch. 12)
-Design patterns applied · Design Model
+        ↓ Object Design (Ch. 12–13)
+Interface spec · Reuse (design patterns, MVC) · Restructuring · Optimization → Design Model
         ↓ Implementation
 Source Code
-        ↓ Testing (Ch. 13–14)
+        ↓ Testing (Ch. 14 black-box: ECs, BVs · Ch. 15 white-box: CFG, basis paths)
 Test Cases → Test Report → User Acceptance Test
+        ↓ Maintenance (Ch. 16)
+Fault repair · Environmental adaptation · Functionality addition · Refactoring
 ```
 
 ## B. Which UML diagram, when
@@ -2542,6 +3047,8 @@ Test Cases → Test Report → User Acceptance Test
 | How do these screens connect? | **Dialog Map** (a state machine) | 6 |
 | In what order do objects send messages? | **Sequence Diagram** | 6 (ref.) |
 | How is the system structured at a high level? | **Package / Component Diagram** | 11 |
+| Which roles do the classes play in a pattern? | **Class Diagram** with role names (Context, Subject, Observer …) | 12–13 |
+| Which paths can execution take through this code? | **Control Flow Graph** (not UML) | 15 |
 
 ## C. Relationship notation cheat sheet
 
@@ -2575,8 +3082,13 @@ Test Cases → Test Report → User Acceptance Test
 | **DEEP** | **D**etailed appropriately · **E**stimated · **E**mergent · **P**rioritized — a good *product backlog* |
 | **INVEST** | **I**ndependent · **N**egotiable · **V**aluable · **E**stimable · **S**mall · **T**estable — a good *user story* |
 | **3 Cs** | **C**ard · **C**onversation · **C**onfirmation — the parts of a user story |
-| **ECP / BVA** | Equivalence Class Partitioning / Boundary Value Analysis |
-| **V(G)** | Cyclomatic complexity = E − N + 2 = P + 1 |
+| **ECP / BVA** | Equivalence Class Partitioning / Boundary Value Analysis (the slides say **EC testing** / **BV testing**, **BVT**) |
+| **CC / V(G)** | Cyclomatic complexity = \|edges\| − \|nodes\| + 2 = \|decision points\| + 1 |
+| **CFG** | Control Flow Graph |
+| **SUT** | System Under Test |
+| **UAT** | User Acceptance Testing |
+| **Oracle / Log** | Expected output / actual output of a test case |
+| **GoF** | "Gang of Four" — Gamma, Helm, Johnson, Vlissides, *Design Patterns* |
 | **MVC** | Model–View–Controller |
 
 ## E. Numbers worth memorising
@@ -2593,7 +3105,16 @@ Test Cases → Test Report → User Acceptance Test
 | **every 2 weeks** | XP increment delivery to customers |
 | **IEEE 830-1998** | Recommended Practice for Software Requirements Specifications |
 | **UML 2.5** (Aug 2015) | Current UML version; v1.1 adopted by OMG 1997 |
-| **~10** | Cyclomatic complexity threshold above which a module warrants refactoring |
+| **~10** | Cyclomatic complexity threshold above which a module warrants refactoring (McCabe; textbook extra) |
+| **23 = 5 + 7 + 11** | GoF patterns: creational + structural + behavioral |
+| **2¹⁶ = 65,536** | Inputs to a 16-bit `int` function: "can we test everything?" (L16) |
+| **1 valid + 2 invalid / 1 valid + 1 invalid** | ECs for a range of values / a set of discrete values |
+| **3 per boundary** | BV testing: on, just-below, just-above |
+| **≤ 1** | Invalid inputs allowed per test case |
+| **2^\|decisions\|** | Execution paths through loop-free code |
+| **24% / 19% / 58%** | Maintenance effort: fault repair / environmental adaptation / functionality addition (Sommerville 9e, as on L21 p19) |
+| **100 bn LOC, 80%** | Code in production worldwide; share that is unstructured, patched, badly documented (van Vliet) |
+| **1947** | First "bug": a moth in the Harvard Mark II |
 
 ---
 
@@ -2604,11 +3125,11 @@ Test Cases → Test Report → User Acceptance Test
 | **Grain Elevator System problem statement** | Tutorials 2, 3, 6, 7, 8 | NTULearn (released week 1) |
 | **Lecture 7** (numbering gap between decks 6 and 8) | — | NTULearn |
 | **Lectures 10–11** (gap between deck 9 and Lecture 12) | — | NTULearn |
-| **Design Patterns lecture(s)** | Tutorials 6 Q2, 7 | NTULearn; meanwhile [BD] Ch. 8 |
-| **Testing lecture(s)** | Tutorials 8, 9 | NTULearn; meanwhile [S] Ch. 8, [BD] Ch. 11, Copeland |
+| **Code samples referenced by L14** (`EMSNoFactory.zip`, `EMSBasicFactory.zip`, `EMSFactoryDynamicLoading.zip`, `YouExtendEclipse.zip`) and **L15** (`ExcelObserver.zip`) | Seeing Factory / Observer in real code | NTULearn |
+| **Tutorial #10** (referenced on L21 p12 for white-box testing) | Extra control-flow practice | NTULearn |
 | **Sequence Diagrams** — referenced in Ch. 6 and 11 but not developed in any deck here | SRS §2, analysis model | [F] Ch. 4; [BD] §2.4.3 |
 | **Use Case Description Template**, **SRS Template** | Lab project | NTULearn course website |
 
 ---
 
-*Compiled 5 October 2026 from the lecture decks and tutorial sheet in this folder, cross-referenced against Sommerville 10e, Bruegge & Dutoit 3e, and Fowler's UML Distilled 3e.*
+*Compiled 5 October 2026 from the lecture decks and tutorial sheet in this folder, cross-referenced against Sommerville 10e, Bruegge & Dutoit 3e, and Fowler's UML Distilled 3e. Updated 17 November 2026: Chapters 12–16 rewritten from Lectures 13–21.*
