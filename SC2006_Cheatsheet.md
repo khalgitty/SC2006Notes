@@ -12,6 +12,7 @@ One page per chapter. Each page answers the chapter's learning objectives. Lines
 | 6 | Analysis: State Machine & Activity | 14 | Testing I: EC & BV (black-box) |
 | 7 | Writing the SRS | 15 | Testing II: Control Flow (white-box) |
 | 8 | Software Processes | 16 | Software Maintenance |
+| | | **T** | **Terminology (last page)** |
 
 <div style="page-break-after: always;"></div>
 
@@ -432,6 +433,24 @@ Reuse stages: requirements spec → discovery & evaluation → requirements refi
 
 > **[Insert diagram: Client–server (WWW) components & connectors]**
 
+**Architecture vs design pattern (the difference is zoom level).**
+
+| | Architecture (Ch 11) | Design pattern (Ch 12) |
+|---|---|---|
+| Scope | **Whole system** | **A few classes** in one subsystem |
+| Parts | **Components + connectors** | **Classes / interfaces + roles** |
+| Examples | Layered, Client–server, **Event-based**, Repository, Pipe-and-filter | Observer, Strategy, Factory, Façade |
+| Driven by | **NFRs** | **What varies** + Open-Closed |
+| Drawn as | Box-and-line diagram | UML class diagram |
+| Change cost | Expensive | Local, cheap |
+
+MVC (Ch 13) is the bridge: an architecture built from patterns.
+
+**DWS (AY24/25 S2 Q3a/b):**
+- **3(a) Architecture: Event-based (publish–subscribe).** Sensors push updates *at any time*, and the DWS reacts. The justification is LO12: easy to add or remove sensors and alerts (modifiability, integration) and many concurrent sensors (scalability). Optional: a layered manager side (UI / logic / persistent interaction log).
+- **3(b)(i) Pattern: Observer.** The DWS is the Subject: `register()` / `deregister()` at **runtime**, `notify()`. Sensors push `update(value)`. The thing that varies is **who** gets told.
+- Event-based architecture and Observer are the **same idea at two zoom levels**.
+
 <div style="page-break-after: always;"></div>
 
 ## Ch 12 — Object Design & Design Patterns
@@ -568,6 +587,34 @@ When one range has several outputs, each sub-range is its own valid EC (hiring: 
 
 **Silo (Tut 8):** Humidity 0–100, normal 35–50 → **5 ECs**: <0 invalid · 0–34 reject · **35–50 accept** · 51–100 reject · >100 invalid. Valid BVs {0, 34, 35, 50, 51, 100}, invalid {−1, 101}. Same for temperature (−10–100, normal 40–60). **ACCEPT ⟺ humidity normal AND temperature normal.** Hold the other variable at a nominal normal value (42%, 50 °C).
 
+**DWS link (AY24/25 S2 Q4b):** Only **ordered** inputs have boundaries. Names (`"smoke concentration"`, `"fire"`) are discrete, so there are **no BVs**; say so explicitly. 4 boundaries = 4 marks:
+
+| Boundary | Below | On | Above |
+|---|---|---|---|
+| N lower −32768 | −32769 ✗ | −32768 ✓ | −32767 ✓ |
+| N upper +32767 | +32766 ✓ | +32767 ✓ | +32768 ✗ |
+| M lower 0 | **−0001** ✗ | 00000 ✓ | 00001 ✓ |
+| M upper 32767 | 32766 ✓ | 32767 ✓ | 32768 ✗ |
+
+M has no sign, so "just below 0" can't be written in a valid format. `−0001` is the answer, and it's invalid because of its **format**. Optional extra: digit count is ordered too (`+1234` ✗ / `+12345` ✓ / `+123456` ✗).
+
+**DWS defensive test suite (AY24/25 S2 Q4c):** Cover **all 4 inputs** with **valid + invalid** values, **one invalid per case**, and give an **expected output** for each. Defaults: smoke concentration / fire / +00100 / 00100.
+
+| TC | Changed input(s) | Expected |
+|---|---|---|
+| 1 | N=−32768, M=00000 | Link created |
+| 2 | N=+32767, M=32767 | Link created |
+| 3 | Sensor=`"rain"` | Rejected: unknown sensor |
+| 4 | Alert=`"flood"` | Rejected: unknown alert |
+| 5 | N=−32769 | Rejected: N below range |
+| 6 | N=+32768 | Rejected: N above range |
+| 7 | N=`12345` (no sign) | Rejected: N format |
+| 8 | M=−0001 | Rejected: M negative / format |
+| 9 | M=32768 | Rejected: M above range |
+| 10 | M=`1234` (4 digits) | Rejected: M format |
+
+Valid on-boundary values are combined (TC1–2). The just-inside values are dropped because they fall in a valid class already tested. TC2 is valid only because Q4(c) doesn't limit N+M; under Q4(d) it becomes invalid.
+
 > **[Insert diagram: Number line showing ECs and boundary values (silo humidity)]**
 
 <div style="page-break-after: always;"></div>
@@ -667,3 +714,156 @@ Check with two formulas. Count a compound `&&`/`||` as one decision (conventiona
 | Tight coupling | Move Method; interface or **Façade** |
 
 > **[Insert diagram: Maintenance effort pie chart (24 / 19 / 58)]**
+
+<div style="page-break-after: always;"></div>
+
+## Terminology — Definitions for Theory Questions
+
+One line per term, grouped by topic. Focuses on terms the past papers ask about that the chapter pages don't define. **[S]** = only in Sommerville, not on the slides.
+
+### People & requirements
+
+| Term | Meaning |
+|---|---|
+| **Stakeholder** | Anyone with a direct or indirect interest in, or influence on, the system's requirements. Includes far more than users |
+| ↳ *"Name 4 stakeholders + concerns"* | **End user**: usability, features, speed · **Client / sponsor**: cost, schedule, return on investment · **Developer**: clear, feasible, stable requirements · **Maintainer / operator**: maintainability, documentation · **Regulator**: compliance, safety, privacy · **Domain expert**: correctness of business rules. Give each one a concern tied to the scenario |
+| **Customer vs user** | The customer pays and signs off. The user operates the system. They may be different people |
+| **Requirement** | A statement of a service the system provides (FR) or a constraint on it (NFR) |
+| **User vs system requirement** [S] | User = natural-language statement for the customer. System = detailed, precise spec for developers |
+| **Domain requirement** [S] | Comes from the application domain (laws, industry rules), e.g. "PDPA compliance" |
+| **Emergent property** [S] | A property of the whole system, not of any one part (reliability, security) |
+| **Requirements engineering** | Elicitation → analysis → specification → validation, then management of change |
+| **Requirements volatility** | How much requirements change during the project. High volatility points to agile |
+| **TBD** | An open question recorded and asked of the client, never guessed |
+| **Traceability** | Linking each requirement to its source, design, code and tests |
+| **Baseline** | An agreed, signed-off version of a work product. Later changes go through change control |
+
+### Process & project
+
+| Term | Meaning |
+|---|---|
+| **Verification vs validation** | Verification: *"Are we building the product right?"* (meets the spec). Validation: *"Are we building the right product?"* (meets real needs) |
+| **Generic vs customised product** [S] | Generic: sold on the open market; the **developer** owns the spec. Customised (bespoke): built for one customer, who owns the spec |
+| **Software product vs software system** [S] | A product is the software itself (code, docs, config). A system is the wider whole the software runs in: hardware, people, processes. Reused COTS parts clash with **certification** because no source code or development evidence is available to certify |
+| **COTS** | Commercial Off-The-Shelf: bought, configured, not built |
+| **Coping with change** [S] | **Change anticipation**: prototype early to catch changes before they're costly. **Change tolerance**: incremental delivery so changes are cheap. Plan-driven projects also use a **change control board** and impact analysis |
+| **Milestone vs deliverable** | Milestone = checkpoint for measuring progress (often a review). Deliverable = a work product handed to the customer |
+| **WBS** | Work Breakdown Structure: the project broken down hierarchically into tasks small enough to estimate |
+| **Activity network** | Tasks drawn with their durations and dependencies |
+| **Critical path** | The longest path through the network, which gives the **shortest possible project time**. Any delay on it delays the project |
+| **Forward / backward pass** | Forward gives the earliest start and finish (ES, EF). Backward gives the latest start and finish (LS, LF) |
+| **Slack (float)** | LS − ES. How long a task can slip without delaying the project. Zero on the critical path |
+| **PERT estimate** | (Optimistic + 4 × Most likely + Pessimistic) / 6 |
+| **Estimation methods** [S] | **Experience-based** (expert judgement, analogy with past projects) · **Algorithmic** (COCOMO II: effort = A × Size^B × M) · bottom-up from the WBS · agile: story points + planning poker |
+| **Story point** | A relative measure of size and complexity, **not** hours |
+| **Definition of Done** | The shared checklist an item must pass to count as "Done" in the increment |
+| **Impediment** | Anything blocking the team. The Scrum Master removes it |
+| **Technical debt** | Future rework caused by choosing a quick fix now |
+
+### Design & architecture
+
+| Term | Meaning |
+|---|---|
+| **Coupling** | How strongly modules depend on each other. Aim **low** |
+| **Cohesion** | How closely the responsibilities inside one module belong together. Aim **high** |
+| **Separation of concerns** | Each part handles one concern (e.g. UI vs logic vs data) |
+| **Encapsulation** | Hide internal data behind an interface |
+| **Abstraction** | Show only essential features, hide the details |
+| **Polymorphism** | One interface, many implementations chosen at run time. The basis of Strategy |
+| **Interface** | A contract of operations with no implementation |
+| **Open-Closed** | Open for extension, closed for modification |
+| **Single Responsibility** | A class has one reason to change |
+| **Law of Demeter** | Only talk to your immediate friends: no `a.getB().getC().do()` |
+| **DRY** | Don't Repeat Yourself |
+| **Dynamic loading** | Load a class by name, read from config, at run time. **Downsides:** errors move from compile time to run time, slower start-up, harder to debug, security risk if the config can be tampered with |
+| **Subsystem** | A replaceable part of the system with a well-defined interface |
+| **Tier vs layer** | A layer is a logical grouping. A tier is a physical machine or process |
+
+### NFR vocabulary (for "identify the key NFR")
+
+| NFR | Meaning | Architecture lever |
+|---|---|---|
+| **Performance** | Response time, throughput | Localise critical work, fewer large components, caching |
+| **Scalability** | Handles more users or data by adding resources | Client–server, stateless servers, load balancing |
+| **Availability** | Fraction of time the system is up | Redundant components, failover |
+| **Reliability** | Runs without failure for a given time | Redundancy, input validation, fault tolerance |
+| **Security** | Protects against unauthorised access | Layered, with critical assets in the inner layers; authentication component |
+| **Safety** [S] | Doesn't cause harm | Isolate safety-critical parts in a few components |
+| **Maintainability** | Easy to change | Fine-grained, self-contained, low-coupling components |
+| **Extensibility** | Easy to add new features | Strategy + Factory, Observer, Open-Closed |
+| **Portability** | Runs on other platforms | A layer that isolates the platform |
+| **Usability** | Easy to learn and use | MVC, consistent UI |
+| **Interoperability** | Works with other systems | Adapter, Façade, standard APIs |
+| **Testability** | Easy to test | Low coupling, dependency injection, mocks |
+
+### UML extras
+
+| Term | Meaning |
+|---|---|
+| **Extension point** | A named place in a base use case where an `<<extend>>` use case may be inserted |
+| **Sequence diagram** [S] | Objects as **lifelines** (dashed vertical lines), **messages** as horizontal arrows ordered top to bottom, **activation bars** while an object is busy. Fragments: `alt`, `opt`, `loop` |
+| **Communication diagram** | Same information as a sequence diagram, but objects are linked freely and messages are **numbered** (1, 1.1, 2) to show order |
+| **Swimlane** | A column of an activity diagram showing who or what performs each activity |
+| **Guard** | A `[condition]` that must be true for a transition or flow to fire |
+| **Stereotype** | `<<…>>` label extending UML's meaning, e.g. `<<entity>>`, `<<include>>` |
+| **Component diagram** | Components with provided (lollipop) and required (socket) interfaces |
+
+### Testing
+
+| Term | Meaning |
+|---|---|
+| **Error → fault → failure** | Error = a human mistake. Fault (defect, bug) = its result in the code. Failure = the visible wrong behaviour when the fault runs |
+| **Test case / suite / oracle** | Case = input + expected output. Suite = a set of cases. Oracle = the source of the expected result |
+| **Unit testing** | Test one component **in isolation**, by the developer, usually white-box, with stubs and drivers |
+| **Integration testing** | Test the **interfaces** between components. Big-bang, top-down (needs stubs) or bottom-up (needs drivers) |
+| **System testing** | Test the whole integrated system against the **SRS**, FRs **and** NFRs, by a test team, black-box |
+| **Acceptance testing (UAT)** | The **customer** tests in their own environment to decide whether to accept. Alpha = at the developer's site, beta = real users at their site |
+| ↳ *Unit vs system, 2 differences* | Scope (one component vs the whole system) · basis (code or design vs requirements) · who (developer vs independent test team) · technique (mostly white-box vs black-box) |
+| **Release testing** [S] | Testing a release before it ships, by a separate team, to show it meets the requirements |
+| **Regression testing** | Re-run old tests after a change to check nothing that used to work is broken |
+| **Stub** | A fake **callee**. It replaces a component the unit calls (missing, slow or external) and returns canned values |
+| **Driver** | A fake **caller**. It invokes the unit under test and feeds it inputs |
+| **Mock** | A stub that also **checks** it was called correctly |
+| **Test harness** | Automated framework that runs tests and compares results (JUnit) |
+| **Grey-box testing** | Testing with **partial** knowledge of the internals (design, schema, APIs). Better than black-box because it can target internal risks; cheaper than white-box because it doesn't need the full source |
+| **Data-flow testing** | White-box testing that picks paths by where variables are **defined** and **used** (def-use pairs). Finds uninitialised or unused variables. Control-flow testing picks paths by **branches** instead |
+| **Shift-left testing** | Test **earlier** in the lifecycle (TDD, requirements reviews). Defects are cheaper to fix the earlier they are found |
+| **Static vs dynamic** | Static = reviews and inspections without running the code. Dynamic = execute it |
+| **Test coverage** | How much of the code (statements, branches, paths) the tests exercise |
+| **Parameterised test** | One test body run with many input sets, e.g. one suite for every deployment |
+| **CC as a metric** | Besides basis paths: measures complexity, flags code to refactor (CC > 10), predicts maintenance effort and fault-proneness |
+
+### Maintenance & evolution
+
+| Term | Meaning |
+|---|---|
+| **Software evolution** | Ongoing change after delivery. Software must evolve to stay useful |
+| **Legacy system** | An old system still vital to the business but costly to change (old tech, poor docs, original staff gone) |
+| **Re-engineering** [S] | Restructure and redocument a legacy system **without changing its functionality**: source translation, reverse engineering, structure improvement, modularisation, data re-engineering |
+| **Reverse engineering** | Analyse code to recover its design and specification |
+| **Refactoring vs re-engineering** | Refactoring = small, **continuous**, during development. Re-engineering = big, one-off, after years of maintenance |
+| **Maintenance prediction** [S] | Estimate effort from: the **number of change requests**, **complexity metrics** (CC, size), the number of components a change touches, and the mean time to make a change |
+| **Ripple effect** | One change forces changes elsewhere. Caused by high coupling |
+| **Lehman's laws** [S] | Continuing change: a system in use must change or it becomes less useful. Increasing complexity: structure degrades unless work is done to keep it |
+
+### Professional & ethics [S 1.2]
+
+| Term | Meaning |
+|---|---|
+| **Professional responsibility** | Confidentiality · competence (don't accept work beyond your skill) · intellectual property · no computer misuse. ACM/IEEE Code of Ethics |
+| **Input validation** | Check all external input (users, third-party sensors, APIs) at the system boundary. A crash caused by bad input is a fault in **your** system too |
+| **Accountability** | A human remains responsible for AI-generated code, designs and tests |
+
+**DWS crash: string from a third-party sensor (AY24/25 S2 Q3c).** The concept tested is **professional responsibility + input validation / robustness**.
+- **(i) Blame us?** *Yes:* the sensor is untrusted external input, and a safety-critical system must validate it and reject bad input instead of crashing (**robustness**). *No:* the SRS says updates are integers, we met the spec, and the sensor **broke the interface contract**. We never supplied or certified it.
+- **(ii) Other parties:** **Sensor manufacturer** (broke the interface spec) · **Client / DWS manager** (connected an uncertified sensor with no integration or acceptance testing) · *alt:* whoever wrote the SRS without saying how invalid input is handled.
+- **(iii) One way per stage:**
+
+| Stage | Prevent it / reduce blame |
+|---|---|
+| Requirements | Robustness NFR: *"shall reject and log malformed updates without crashing"*. State the supported sensor interface in the SRS or contract |
+| Design / impl | **Input validation**, exception handling, **fault isolation** (one bad sensor doesn't crash the whole DWS; alert the manager) |
+| Testing | **Defensive / robustness testing** with wrong types (string, empty, overflow) + integration tests with third-party sensors |
+| Deploy / maintain | Check compatibility at registration (test reading), and document the supported sensors |
+
+Input validation is the one fix that actually **prevents** the crash. The others mostly **reduce blame**.
